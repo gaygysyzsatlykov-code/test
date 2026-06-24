@@ -1,18 +1,29 @@
-                 ssh cli@10.252.254.169
+[lab@sandbox nokia_lab]$ python3 rotate.py
+admin password (to log IN): 
+NEW admin password: 
+
+Username: cli
+Password: 
+Password authentication failed. Try again.
 
 
 Username: admin
 Password: 
-Last Login: Wed Jun 24 22:51:36 2026 from ssh_10.252.254.207-54986
+Last Login: Wed Jun 24 22:55:19 2026 from ssh_10.252.254.207-46076
 
 
 Alarm Status:  Critical-0   Major-0   Minor-0 Warning-0
 
-NLL-ILA1# config admin users edit admin passwd
+NLL-ILA1# 
+=== rotating admin password ===
+config admin users edit admin passwd
 Enter login password: 
 New password: 
 Verify password: 
-Unable to complete request.
-Error: Old Password cannot be used because of Obsolescence 
+Password has been changed
 
 NLL-ILA1# 
+
+>>> Rotation looks successful. Verify by logging in with the new password.
+[lab@sandbox nokia_lab]$ 
+
