@@ -19,3 +19,5 @@ who                 Display who is logged in
 whoami              Display information about the current user
 NLL-ILA1# 
 
+NLL-ILA1# show admin
+admin 
