@@ -1,40 +1,47 @@
-[lab@sandbox nokia_lab]$ export RUN_DELETE=true
-[lab@sandbox nokia_lab]$ export RUN_DISABLE=true
-[lab@sandbox nokia_lab]$ export RUN_ROTATE=true
 [lab@sandbox nokia_lab]$ python3 output/lab_test_layer1.py
 Login as 'tacacs' (rotate) or 'admin' (verify)? [tacacs]: tacacs
 Layer-1  host=10.252.254.169  ssh_user=cli  login_as=tacacs
 RUN_DELETE=True  RUN_DISABLE=True  RUN_ROTATE=True
 
-TACACS username: cli
-Password for cli: 
+TACACS username: admin
+Password for admin: 
 
 Username: cli
 Password: 
 Password authentication failed. Try again.
 
 
-Username: cli
+Username: admin
 Password: 
-Password authentication failed. Try again.
+Last Login: Wed Jun 24 21:48:36 2026 from ssh_10.252.254.207-52108
 
-show admin users
 
-parsed local_users  : []
+Alarm Status:  Critical-0   Major-0   Minor-0 Warning-0
+
+NLL-ILA1# show admin users
+Error: command not found: users
+
+NLL-ILA1# 
+parsed local_users  : ['Error:']
 KEEP_USERS           : ['admin', 'service']
 stays ENABLED        : admin (also rotated)
-to DELETE (not kept) : []
+to DELETE (not kept) : ['Error:']
 to DISABLE (kept)    : []
 
 
 === DELETE: remove every account NOT in admin/service ===
-show admin users
+config admin users delete Error:
+Error: user Error: does not exist
 
-Username: Password: 
-parsed local_users  : []
+NLL-ILA1# deleted: Error:
+show admin users
+Error: command not found: users
+
+NLL-ILA1# 
+parsed local_users  : ['Error:']
 KEEP_USERS           : ['admin', 'service']
 stays ENABLED        : admin (also rotated)
-to DELETE (not kept) : []
+to DELETE (not kept) : ['Error:']
 to DISABLE (kept)    : []
 
 
