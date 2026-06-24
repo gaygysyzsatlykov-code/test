@@ -1,8 +1,7 @@
-[lab@sandbox nokia_lab]$ unset NOKIA_USER NOKIA_PASS
 [lab@sandbox nokia_lab]$ python3 output/lab_test_layer1.py
 Login as 'tacacs' (rotate) or 'admin' (verify)? [tacacs]: tacacs
 Layer-1  host=10.252.254.169  ssh_user=cli  login_as=tacacs
-RUN_DELETE=True  RUN_DISABLE=True  RUN_ROTATE=True
+RUN_DELETE=False  RUN_DISABLE=False  RUN_ROTATE=False
 
 Enter your REAL account (e.g. admin) — NOT 'cli'; the script handles cli itself.
 Login username: admin
@@ -13,18 +12,23 @@ Password:
 Password authentication failed. Try again.
 
 
-
 Username: admin
 Password: 
-Last Login: Wed Jun 24 22:04:40 2026 from ssh_10.252.254.207-38448
+Last Login: Wed Jun 24 22:13:48 2026 from ssh_10.252.254.207-48744
 
 
 Alarm Status:  Critical-0   Major-0   Minor-0 Warning-0
 
+NLL-ILA1# show admin users
+Error: command not found: users
+
 NLL-ILA1# 
-❌ LOGIN FAILED. After 'ssh cli@<ip>' the device wants your REAL account + password (e.g. admin) — not 'cli'. Re-run and enter your real login.
+parsed local_users  : ['Error:']
+KEEP_USERS           : ['admin', 'service']
+stays ENABLED        : admin (also rotated)
+to DELETE (not kept) : ['Error:']
+to DISABLE (kept)    : []
+
 
 Done. Session closed.
 [lab@sandbox nokia_lab]$ 
-[lab@sandbox nokia_lab]$ 
-
