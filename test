@@ -1,34 +1,21 @@
-[lab@sandbox nokia_lab]$ python3 output/lab_test_layer1.py
-Login as 'tacacs' (rotate) or 'admin' (verify)? [tacacs]: tacacs
-Layer-1  host=10.252.254.169  ssh_user=cli  login_as=tacacs
-RUN_DELETE=False  RUN_DISABLE=False  RUN_ROTATE=False
-
-Enter your REAL account (e.g. admin) — NOT 'cli'; the script handles cli itself.
-Login username: admin
-Password for admin: 
-
-Username: cli
-Password: 
-Password authentication failed. Try again.
-
-
-Username: admin
-Password: 
-Last Login: Wed Jun 24 22:13:48 2026 from ssh_10.252.254.207-48744
-
-
-Alarm Status:  Critical-0   Major-0   Minor-0 Warning-0
-
-NLL-ILA1# show admin users
-Error: command not found: users
-
 NLL-ILA1# 
-parsed local_users  : ['Error:']
-KEEP_USERS           : ['admin', 'service']
-stays ENABLED        : admin (also rotated)
-to DELETE (not kept) : ['Error:']
-to DISABLE (kept)    : []
+alm                 Display active alarms [summary]
+config              Configure the NE
+crypto              SSH cryptopher
+echo                Toggle CLI echo
+help                Help on using CLI commands
+history             Display the command history
+ll                  Display location limits for shelf types and cards
+logout              Log out from the CLI session
+maintenance         create commenting lines in the UAL.log
+paging              CLI display paging
+passwd              Change your password
+prompt              Change the CLI prompt
+session             Change the behavior of the current CLI session
+show                Display NE information
+timeout             Configure timeout period for this session
+tools               Various tool commands
+who                 Display who is logged in
+whoami              Display information about the current user
+NLL-ILA1# 
 
-
-Done. Session closed.
-[lab@sandbox nokia_lab]$ 
