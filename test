@@ -1,23 +1,40 @@
-NLL-ILA1# 
-alm                 Display active alarms [summary]
-config              Configure the NE
-crypto              SSH cryptopher
-echo                Toggle CLI echo
-help                Help on using CLI commands
-history             Display the command history
-ll                  Display location limits for shelf types and cards
-logout              Log out from the CLI session
-maintenance         create commenting lines in the UAL.log
-paging              CLI display paging
-passwd              Change your password
-prompt              Change the CLI prompt
-session             Change the behavior of the current CLI session
-show                Display NE information
-timeout             Configure timeout period for this session
-tools               Various tool commands
-who                 Display who is logged in
-whoami              Display information about the current user
-NLL-ILA1# 
+Error: command not found: config
 
-NLL-ILA1# show admin
-admin 
+NLL-ILA1(show-admin)# 
+aaa-server-group    Display TACACS+ servers of the server group
+aaa-servers         Display AAA servers
+authentication      Display authentication information
+authorization       Display authorization servers
+clusterip           Display the clusterip
+commission          Display the commissioning state
+customer-appl-mode  Display the customer application mode
+delay-resetne       Display the setting for delay-resetne in milliseconds
+flexgrid            Display the Flex Grid
+gmreclusterip       Display the GMRE clusterip
+mode                Display the SONET/SDH mode
+ocsip               Display All Optical connect System (OCS) Status
+networktrace        Display the networktrace
+nms                 Display the nms details
+pki                 Display the Certificate Authority settings
+postloginmsg        Displays the configured post-login message
+powerman            Display the powerman
+preloginmsg         Displays the configured pre-login message
+protocol            Display the protocols
+security            Display security settings
+session             Display session variables
+snmpusers           Display snmpv3 users [<username>]
+syslog              Display syslog servers configuration
+tempUnits           Display the temperature units for the NE
+transfersyslog      Display transfersyslog details
+ui                  Display status of UI options
+user                Display user name and authority level
+NLL-ILA1(show-admin)# help
+Error: command not found: help
+
+NLL-ILA1(show-admin)# show
+Error: command not found: show
+
+NLL-ILA1(show-admin)# config admin
+Error: command not found: config
+
+NLL-ILA1(show-admin)# 
