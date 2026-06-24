@@ -1,8 +1,4 @@
-NLL-ILA1(show-admin-user)# 
-<username>|*        Specify a username or * for a list of users
-logging             Display user activity logging configuration
-NLL-ILA1(show-admin-user)# config admin users
-NLL-ILA1(show-admin-user)# *                 
+NLL-ILA1# show admin user *
 
 Username                                                          User Group     Status    LinuxTools  Last Login
 -------------------------------------------------------------------------------------------------------------------
@@ -10,16 +6,5 @@ admin                                                             administrator 
 service                                                           service        disabled  disabled    
 
 
-NLL-ILA1(show-admin-user)# exit
-NLL-ILA1(show-admin)# show admin user*
-Error: command not found: show
-
-NLL-ILA1(show-admin)# show admin user *
-Error: command not found: show
-
-NLL-ILA1(show-admin)# config admin users edit service status disabled
-Error: command not found: config
-
-NLL-ILA1(show-admin)# confid admin user add ztest administrator pwdaging 0
-Error: command not found: confid
+NLL-ILA1# 
 
