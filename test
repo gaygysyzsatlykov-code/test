@@ -1,40 +1,88 @@
-[lab@sandbox nokia_lab]$ python3 rotate.py
-admin password (to log IN): 
-NEW admin password: 
-
-Username: cli
-Password: 
-Password authentication failed. Try again.
-
-
-Username: admin
-Password: 
-Last Login: Wed Jun 24 22:55:19 2026 from ssh_10.252.254.207-46076
-
-
-Alarm Status:  Critical-0   Major-0   Minor-0 Warning-0
-
-NLL-ILA1# 
-=== rotating admin password ===
-config admin users edit admin passwd
-Enter login password: 
-New password: 
-Verify password: 
-Password has been changed
-
-NLL-ILA1# 
-
->>> Rotation looks successful. Verify by logging in with the new password.
-[lab@sandbox nokia_lab]$ ssh cli@10.252.254.169
-
-
-Username: admin  
-Password: 
-Last Login: Wed Jun 24 23:04:28 2026 from ssh_10.252.254.207-46136
-
-
-Alarm Status:  Critical-0   Major-0   Minor-0 Warning-0
-
-NLL-ILA1# 
-
-
+#config admin users add {Local-username} administrator pwdaging 0
+#Configure CLLI [max 11char]
+config general clli {CLLIinformation}
+#
+#Configure NE Name
+config general name {NE-TID}
+#
+#Configure User Label
+config general userlabel {Max64-Characters}
+#
+#Configure Contact information
+config general contact "{Insert Contact info}"
+#
+#Configure Geolocation information
+config general geo-latitude {-90...90}
+config general geo-longitude {-180...180}
+config general location {Location Description}
+#
+#NTP Configuration
+config general ntp add 1 {NTP server IP (V4 or V6)}
+config general ntp add 2 {NTP server IP (V4 or V6)}
+config general timezone name UTC
+config general ntp client enable
+#
+#Set Temperature Units
+config admin tempUnits fahrenheit
+#
+#Set Shelf Description
+config general description "{Text Here}"
+#
+#Set Protocol interface to use loopback.
+config admin protocol all src-ip loopback
+#Disable Proxyarp for OAMP interface
+config interface usrpnl oamp proxyarp disabled
+#
+#Disable OAMP from being a DHCP client.
+config interface usrpnl oamp dhcp_client disabled
+#
+#Disable IPv6 Autoconfiguration
+config interface usrpnl oamp ipv6_autoconfig disabled
+#
+#Disable Proxyarp for OAMP interface
+config interface usrpnl oamp proxyarp disabled
+#
+#Disable dhcp client gateway.
+config interface usrpnl oamp dhcp_client_gateway disabled
+#
+#Disable IPv6 auto configuration
+config interface usrpnl oamp ipv6_autoconfig disabled
+#
+#Set OAMP IP
+config interface usrpnl oamp ip {2001::1}/64
+#Add TACACS+
+#TACACS+ Configuration
+config admin aaa-server-group tacplus {TACACS Group Name, e.g., Group-1}
+config admin aaa-servers tacplus add TAC1 {IPv6 TACACS server address} timeout 3 single-connect enabled
+yes
+{TACACS Secret}
+{TACACS Secret}
+config admin aaa-servers tacplus add TAC2 {IPv6 TACACS server address} timeout 3 single-connect enabled
+yes
+{TACACS Secret}
+{TACACS Secret}
+config admin aaa-servers tacplus modify TAC1 source-address {Node IP}
+config admin aaa-servers tacplus modify TAC2 source-address {Node IP}
+config admin aaa-server-group tacplus {TACACS Group Name, e.g., Group-1} add server TAC1 priority 14
+config admin aaa-server-group tacplus {TACACS Group Name, e.g., Group-1} add server TAC2 priority 14
+config admin authorization tacplus add server-group {TACACS Group Name, e.g., Group-1}
+config admin authentication tacplus add server-group {TACACS Group Name, e.g., Group-1}
+config admin authorization tacplus type priv-lvl
+#
+#Configure Syslog
+config admin syslog 1 ip {IPv6 Address}
+config admin syslog 1 port {514}
+config admin syslog 1 priority debug
+config admin syslog 1 status enabled
+config admin syslog 2 ip {IPv6 Address}
+config admin syslog 2 port {514}
+config admin syslog 2 priority debug
+config admin syslog 2 status enabled
+#
+#Change acl_default Action
+config acl_default defaultRxAction block
+yes
+#
+#Add SNMP community string
+config snmpserver community {level} {string}
+#
