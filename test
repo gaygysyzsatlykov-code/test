@@ -1,3 +1,4 @@
+Alarm Status:  Critical-0   Major-0   Minor-0 Warning-0
 
 NLL-ILA1# show admin
 NLL-ILA1(show-admin)# user
@@ -5,5 +6,18 @@ NLL-ILA1(show-admin-user)#
 <username>|*        Specify a username or * for a list of users
 logging             Display user activity logging configuration
 NLL-ILA1(show-admin-user)# 
-NLL-ILA1(show-admin-user)# 
+NLL-ILA1(show-admin-user)# config admin users
+NLL-ILA1(show-admin-user)# config admin users
+Error: command not found: admin
 
+NLL-ILA1(show-admin-user)# config admin users edit service status disabled
+Error: command not found: admin
+
+NLL-ILA1(show-admin-user)# config admin users add cbo administrator pwdaging 0
+Error: command not found: admin
+
+NLL-ILA1(show-admin-user)# 
+<username>|*        Specify a username or * for a list of users
+logging             Display user activity logging configuration
+NLL-ILA1(show-admin-user)# config admin users
+NLL-ILA1(show-admin-user)#  
