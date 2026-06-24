@@ -1,14 +1,24 @@
-NLL-ILA1(show-admin)# show
-Error: command not found: show
+[lab@sandbox nokia_lab]$ python3 rotate.py
+admin password (to log IN): 
+NEW admin password: 
 
-NLL-ILA1(show-admin)# config admin
-Error: command not found: config
+Username: cli
+Password: 
+Password authentication failed. Try again.
 
-NLL-ILA1(show-admin)# user
-NLL-ILA1(show-admin-user)# exit
-NLL-ILA1(show-admin)# show admin user
-Error: command not found: show
 
-NLL-ILA1(show-admin)# user
-NLL-ILA1(show-admin-user)# 
+Username: admin
+Password: 
+Last Login: Wed Jun 24 22:25:02 2026 from ssh_10.252.254.207-48522
 
+
+Alarm Status:  Critical-0   Major-0   Minor-0 Warning-0
+
+NLL-ILA1# 
+=== rotating admin password ===
+config admin users edit admin passwd
+Enter login password: 
+Done — rotate command sent. Watch the output above for any error.
+[lab@sandbox nokia_lab]$ 
+
+I think hard coding it is making it an issue maybe, idk?
