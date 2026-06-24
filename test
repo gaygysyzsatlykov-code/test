@@ -25,5 +25,16 @@ Password has been changed
 NLL-ILA1# 
 
 >>> Rotation looks successful. Verify by logging in with the new password.
-[lab@sandbox nokia_lab]$ 
+[lab@sandbox nokia_lab]$ ssh cli@10.252.254.169
+
+
+Username: admin  
+Password: 
+Last Login: Wed Jun 24 23:04:28 2026 from ssh_10.252.254.207-46136
+
+
+Alarm Status:  Critical-0   Major-0   Minor-0 Warning-0
+
+NLL-ILA1# 
+
 
