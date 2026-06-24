@@ -1,24 +1,31 @@
-[lab@sandbox nokia_lab]$ python3 rotate.py
+[lab@sandbox nokia_lab]$ python3 shell.py
 admin password (to log IN): 
-NEW admin password: 
 
 Username: cli
 Password: 
 Password authentication failed. Try again.
 
 
+
 Username: admin
 Password: 
-Last Login: Wed Jun 24 22:25:02 2026 from ssh_10.252.254.207-48522
+Last Login: Wed Jun 24 22:47:25 2026 from ssh_10.252.254.207-47822
 
 
 Alarm Status:  Critical-0   Major-0   Minor-0 Warning-0
 
 NLL-ILA1# 
-=== rotating admin password ===
-config admin users edit admin passwd
-Enter login password: 
-Done — rotate command sent. Watch the output above for any error.
-[lab@sandbox nokia_lab]$ 
+--- LOGGED IN. You now have a live session. Type commands by hand. ---
+--- (quit by logging out on the device, or close this terminal) ---
 
-I think hard coding it is making it an issue maybe, idk?
+show admin
+NLL-ILA1(show-admin)# user
+NLL-ILA1(show-admin-user)# exit
+NLL-ILA1(show-admin)# config admin users edit admin passwd
+Error: command not found: config
+
+NLL-ILA1(show-admin)# config admin users edit admin passw 
+Error: command not found: config
+
+NLL-ILA1(show-admin)# 
+
