@@ -1,64 +1,42 @@
-Done. Session closed.
-[lab@sandbox output]$ ls
-lab_test_layer1.py  __pycache__  test_nokia.py
-[lab@sandbox output]$ nano lab_test_layer1.py
-[lab@sandbox output]$ export RUN_ROTATE=true
-[lab@sandbox output]$ python3 lab_test_layer1.py
+[lab@sandbox nokia_lab]$ export RUN_DELETE=true
+[lab@sandbox nokia_lab]$ export RUN_DISABLE=true
+[lab@sandbox nokia_lab]$ export RUN_ROTATE=true
+[lab@sandbox nokia_lab]$ python3 output/lab_test_layer1.py
 Login as 'tacacs' (rotate) or 'admin' (verify)? [tacacs]: tacacs
-Layer-1 (FINAL MODEL)  host=10.252.254.169  login_as=tacacs
-RUN_DELETE=False  RUN_DISABLE=False  RUN_ROTATE=True
+Layer-1  host=10.252.254.169  ssh_user=cli  login_as=tacacs
+RUN_DELETE=True  RUN_DISABLE=True  RUN_ROTATE=True
 
-TACACS login username: cli
+TACACS username: cli
 Password for cli: 
 
-Username: show admin users
+Username: cli
 Password: 
-parsed local_users  : ['Password:']
-KEEP_USERS           : ['admin', 'cbobbopt', 'cbocoreopt', 'service']
+Password authentication failed. Try again.
+
+
+Username: cli
+Password: 
+Password authentication failed. Try again.
+
+show admin users
+
+parsed local_users  : []
+KEEP_USERS           : ['admin', 'service']
 stays ENABLED        : admin (also rotated)
-to DELETE (not kept) : ['Password:']
+to DELETE (not kept) : []
 to DISABLE (kept)    : []
 
+
+=== DELETE: remove every account NOT in admin/service ===
+show admin users
+
+Username: Password: 
+parsed local_users  : []
+KEEP_USERS           : ['admin', 'service']
+stays ENABLED        : admin (also rotated)
+to DELETE (not kept) : []
+to DISABLE (kept)    : []
+
+
+=== DISABLE: set status disabled on the kept accounts except admin ===
 New (test) password for admin: 
-
-=== ROTATE: ensure admin enabled, then rotate its password ===
-
-Password authentication failed. Try again.
-
-config admin users edit admin passwd
-ROTATE done. To VERIFY, run this script again with LOGIN_AS=admin and the new password. (On a TACACS-only node that admin login is blocked until exit-on-reject is toggled — Alvaro.)
-
-Done. Session closed.
-[lab@sandbox output]$ python3 lab_test_layer1.py
-Login as 'tacacs' (rotate) or 'admin' (verify)? [tacacs]: admin
-Layer-1 (FINAL MODEL)  host=10.252.254.169  login_as=admin
-New admin password to test: 
-VERIFY MODE: logging in as admin with the new password (read-only)...
-
-VERIFY FAILED: could not log in as admin with that password.
-Either the password is wrong, OR (on a TACACS-only node) local login is blocked
-by exit-on-reject — confirm the test procedure with Alvaro.
-[lab@sandbox output]$ ssh cli@10.252.254.169
-
-
-
-Username: Password: 
-
-
-Password authentication failed. Try again.
-
-
-
-Username: Password: 
-
-
-Password authentication failed. Try again.
-
-
-Username: admin
-Password: 
-Last Login: Wed Jun 24 15:05:05 2026 from http_10.54.46.26
-
-
-Alarm Status:  Critical-0   Major-0   Minor-0 Warning-0
-
