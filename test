@@ -1,34 +1,10 @@
-[lab@sandbox nokia_lab]$ python3 output/lab_test_layer1.py
-Login as 'tacacs' (rotate) or 'admin' (verify)? [tacacs]: admin
-Layer-1  host=10.252.254.169  ssh_user=cli  login_as=admin
-New admin password to test: 
-VERIFY MODE: logging in as admin with the new password (read-only)...
-
-
-Username: cli
-Password: 
-Password authentication failed. Try again.
-
-
-Username: admin
-Password: 
-Last Login: Wed Jun 24 23:29:11 2026 from http_10.54.46.26
-
-
-Alarm Status:  Critical-0   Major-0   Minor-0 Warning-0
-
-NLL-ILA1# show admin users
-Error: command not found: users
-
-NLL-ILA1# 
-parsed local_users  : ['Error:']
-KEEP_USERS           : ['admin', 'service']
-stays ENABLED        : admin (also rotated)
-to DELETE (not kept) : ['Error:']
-to DISABLE (kept)    : []
-
-
-✅ VERIFY: logged in as admin with the new password — rotation confirmed.
-
-Done. Session closed.
+44879753f6a132003e137de84fe6c938  lab_test_layer1.py
+[lab@sandbox nokia_lab]$ grep -n "show admin user \*" lab_test_layer1.py     # NEW file has this (the * list command)
+grep -n "show admin users"   lab_test_layer1.py     # should print NOTHING (that was the broken old command)
+8:  list:     show admin user *
+114:    """First column of `show admin user *`, skipping prompt/echo/header/separator lines."""
+123:            in line  # prompt or echoed-command line (e.g. "NLL-ILA1# show admin user *")
+142:    out = send_and_wait(chan, "show admin user *")
+145:            "device REJECTED 'show admin user *' (see output above) — "
+151:            "'show admin user *' returned no users — unexpected; refusing to continue."
 [lab@sandbox nokia_lab]$ 
