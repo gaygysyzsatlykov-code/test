@@ -8,3 +8,575 @@ i have my code inside the lab ssh lab@10.252.254.207, so will this ip work?\Let 
 use the IP I gave you 
 207 is the sandbox VM 
 Let me know if you will need the NTP and DNS at some point 
+# Design Document
+
+## nokia-lab-switch-manager
+
+---
+
+## Overview
+
+The nokia-lab-switch-manager is a thin full-stack web application that wraps the existing `switch1_menu.py` Nokia lab tool and exposes it through a browser UI. Network engineers currently manage a Polatis optical switch via TL1 protocol in a Python terminal script; this project lifts that into a browser without rewriting the proven core logic.
+
+**Approach:**
+- A Flask application (`app.py`) imports and delegates to the functions already in `switch1_menu.py`
+- A single HTML file (`static/index.html`) with embedded CSS and vanilla JS implements the entire frontend as a single-page application (SPA) with JS-driven view switching
+- All assets are served locally from Flask — no CDN, no Node.js, no build pipeline
+- The existing `Background_Watcher` thread and `patch_timers.json` persistence layer remain intact
+
+**Key design decisions:**
+- Flask over FastAPI: simpler stdlib-like API, no async mental model required for a single-engineer lab tool, and the synchronous model mirrors the existing blocking TL1 socket calls
+- Single HTML file: maximises portability (one file to copy), eliminates build tools, and matches the lab's lightweight deployment requirement
+- `patch_id` is the `tkey` canonical form (`"{min}-{max}"`) which acts as a natural key for the port pair
+- All timer state is owned by the server; the client resyncs on every `/api/ports` poll and decrements locally only between polls
+
+---
+
+## Architecture
+
+### Component Diagram
+
+```mermaid
+graph TD
+    subgraph Lab_Machine ["Lab Machine (10.252.254.207)"]
+        Browser["Browser\n(Chrome / Firefox / Edge)"]
+        subgraph Flask_Process ["Python Process (app.py)"]
+            Flask["Flask\napp.py\n:5000"]
+            Core["switch1_menu.py\n(get_patches, get_power,\nmk_patch, dl_patch,\ntkey, load, save)"]
+            Watcher["Background_Watcher\nthread (30s loop)"]
+            JSON["patch_timers.json"]
+        end
+        Static["static/\nindex.html"]
+    end
+    Switch["Polatis Switch\n10.252.254.8:3082\n(TL1)"]
+
+    Browser -- "HTTP GET / " --> Flask
+    Browser -- "HTTP REST /api/*" --> Flask
+    Flask -- "serves" --> Static
+    Flask -- "delegates" --> Core
+    Core -- "TL1 socket" --> Switch
+    Core -- "read/write" --> JSON
+    Watcher -- "calls dl_patch, save" --> Core
+    Watcher -- "read/write" --> JSON
+```
+
+### Request Flow
+
+```mermaid
+sequenceDiagram
+    participant B as Browser
+    participant F as Flask (app.py)
+    participant C as switch1_menu.py
+    participant S as Polatis Switch
+
+    B->>F: GET /api/ports
+    F->>C: get_patches()
+    C->>S: TL1 RTRV-PATCH
+    S-->>C: patch list
+    C-->>F: patch dict
+    F->>F: merge patch_timers.json
+    F-->>B: 200 JSON {ports, patches}
+
+    B->>F: POST /api/patches {portA, portB, duration, label}
+    F->>F: validate inputs
+    F->>C: mk_patch(a, b)
+    C->>S: TL1 ED-PATCH
+    S-->>C: OK
+    F->>C: save()
+    F-->>B: 201 JSON {patch}
+```
+
+---
+
+## File Structure
+
+```
+project-root/
+├── app.py                  # Flask server — API routes, startup, config
+├── switch1_menu.py         # Existing core logic (unchanged)
+├── patch_timers.json       # Timer persistence (auto-created if absent)
+├── requirements.txt        # Pinned pip deps (flask==3.0.3)
+├── static/
+│   └── index.html          # Entire frontend: HTML + CSS + JS, single file
+└── .env                    # Optional: SWITCH_HOST, SWITCH_PORT, etc. (not committed)
+```
+
+**Rationale for `static/index.html` monolith:** The lab deployment requirement explicitly prohibits Node.js and a build pipeline. A single file is trivially deployable (`scp static/index.html lab:…`), inspectable in any text editor, and eliminates relative-path concerns.
+
+---
+
+## Components and Interfaces
+
+### Flask Application (`app.py`)
+
+Responsibilities:
+- Read configuration from environment variables / `.env` file at startup
+- Register REST API blueprints
+- Serve `static/index.html` at `/`
+- Start `Background_Watcher` daemon thread on startup
+- Load `patch_timers.json` on startup (halt on parse error per Req 6.7)
+
+```python
+# Startup sequence (pseudocode)
+config = load_config()          # env vars → config dict, warn on missing
+validate_config(config)         # write warnings; halt only if stdout fails
+load()                          # switch1_menu.load() — loads patch_timers.json
+start_watcher()                 # switch1_menu.watcher() in daemon thread
+app.run(host="0.0.0.0", port=config["port"])
+```
+
+### REST API Layer (Flask routes in `app.py`)
+
+All endpoints return `Content-Type: application/json`. Error responses always include `{"status": "error", "message": "..."}`.
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/` | Serve `static/index.html` |
+| `GET` | `/api/ports` | All 114 ports + active patches with timer seconds |
+| `POST` | `/api/patches` | Create a new patch |
+| `DELETE` | `/api/patches/<patch_id>` | Remove a patch by tkey |
+| `GET` | `/api/power` | Optical power readings for all 114 ports |
+
+### Frontend (`static/index.html`)
+
+Four logical views, each a `<section>` that is shown/hidden via CSS `display` toggling:
+
+| View ID | Nav Label | Primary Content |
+|---------|-----------|-----------------|
+| `#view-dashboard` | Port Dashboard | 114-port grid + active patches table |
+| `#view-create` | Create Patch | Form: portA, portB, duration, label |
+| `#view-remove` | Remove Patch | List of active patches + confirm button |
+| `#view-power` | Power Monitor | 114-port power grid + refresh button |
+
+**JS module boundaries (IIFE pattern, no bundler):**
+
+```
+App (global state)
+├── Router        — showView(viewId), highlights nav link
+├── Api           — fetch wrappers (GET, POST, DELETE) returning Promises
+├── Dashboard     — renderPortGrid(), renderPatchTable(), handleStaleData()
+├── TimerManager  — syncTimers(patches), tick(), formatCountdown(secs)
+├── CreatePatch   — validateForm(), submitPatch()
+├── RemovePatch   — renderList(), confirmRemove(patchId)
+├── PowerMonitor  — renderPowerGrid(), refresh()
+└── Notifications — show(msg, level), clear()
+```
+
+---
+
+## API Contract
+
+### `GET /api/ports`
+
+**Response 200:**
+```json
+{
+  "ports": [
+    { "port": 1, "status": "free" },
+    { "port": 2, "status": "patched" },
+    { "port": 5, "status": "expiring" }
+  ],
+  "patches": [
+    {
+      "patch_id": "2-7",
+      "port_a": 2,
+      "port_b": 7,
+      "label": "backbone-link",
+      "expires": "2025-07-14T10:30:00",
+      "remaining_seconds": 3542
+    }
+  ]
+}
+```
+
+Port `status` values:
+- `"free"` — not part of any active patch
+- `"patched"` — part of an active patch with > 300 s remaining
+- `"expiring"` — part of an active patch with 1–300 s remaining
+- `"expired"` — remaining_seconds ≤ 0 (Background_Watcher hasn't removed yet)
+
+**Response 503:** Switch unreachable.
+
+---
+
+### `POST /api/patches`
+
+**Request body:**
+```json
+{
+  "port_a": 5,
+  "port_b": 22,
+  "duration_minutes": 60,
+  "label": "test-link"
+}
+```
+
+`label` is optional (omit or `null`). Maximum 64 characters.
+
+**Response 201:**
+```json
+{
+  "patch_id": "5-22",
+  "port_a": 5,
+  "port_b": 22,
+  "label": "test-link",
+  "duration_minutes": 60,
+  "expires": "2025-07-14T11:30:00"
+}
+```
+
+**Error responses:**
+
+| HTTP | Condition |
+|------|-----------|
+| 400 | `port_a == port_b` |
+| 400 | Label exceeds 64 characters |
+| 400 | Duration ≤ 0 or > 10080 |
+| 400 | Port number outside 1–114 |
+| 409 | One or both ports already in an active patch |
+| 503 | Switch unreachable |
+
+---
+
+### `DELETE /api/patches/<patch_id>`
+
+`patch_id` is the tkey string, e.g. `5-22`.
+
+**Response 200:**
+```json
+{
+  "patch_id": "5-22",
+  "port_a": 5,
+  "port_b": 22,
+  "label": "test-link"
+}
+```
+
+**Error responses:**
+
+| HTTP | Condition |
+|------|-----------|
+| 400 | `patch_id` format invalid (not parseable as two integers) |
+| 404 | Patch not found |
+| 503 | Switch unreachable |
+
+---
+
+### `GET /api/power`
+
+**Response 200:**
+```json
+{
+  "readings": [
+    { "port": 1, "dbm": -5.2 },
+    { "port": 2, "dbm": -15.0 },
+    { "port": 3, "dbm": null }
+  ]
+}
+```
+
+`dbm` is `null` when the switch returns no reading for that port.
+
+**Error responses:**
+
+| HTTP | Condition |
+|------|-----------|
+| 503 | Switch unreachable |
+| 504 | Switch query exceeded 10-second timeout |
+
+---
+
+## Data Models
+
+### Server-side: `patch_timers.json`
+
+Existing format — unchanged:
+
+```json
+{
+  "5-22": {
+    "expires": "2025-07-14T11:30:00",
+    "label": "test-link"
+  },
+  "10-50": {
+    "expires": "2025-07-14T09:45:00",
+    "label": ""
+  }
+}
+```
+
+Key: `tkey(a, b)` = `f"{min(a,b)}-{max(a,b)}"`. Value: object with `expires` (ISO-8601 UTC string) and `label` (string, may be empty).
+
+### Server-side: Port Status Derivation
+
+```python
+def derive_port_status(port: int, patches: dict, timers: dict) -> str:
+    """
+    patches: dict returned by get_patches() — maps port -> partner_port
+    timers:  loaded patch_timers.json dict
+    """
+    if port not in patches:
+        return "free"
+    key = tkey(port, patches[port])
+    entry = timers.get(key)
+    if not entry:
+        return "patched"  # patch exists but no timer record
+    remaining = (datetime.fromisoformat(entry["expires"]) - datetime.utcnow()).total_seconds()
+    if remaining <= 0:
+        return "expired"
+    if remaining <= 300:
+        return "expiring"
+    return "patched"
+```
+
+### Client-side: TimerManager State
+
+```javascript
+// Internal state owned by TimerManager
+const timers = {};  // patch_id -> { remaining: Number, intervalId: Number }
+
+// On each /api/ports response:
+function syncTimers(patches) {
+    // Cancel intervals for patches no longer present
+    // Create/update entries for each patch
+    // remaining = patch.remaining_seconds (from server)
+}
+
+// setInterval(tick, 1000) — global 1-second ticker
+function tick() {
+    for (const [id, t] of Object.entries(timers)) {
+        t.remaining -= 1;
+        if (t.remaining <= 0) {
+            markExpired(id);
+            triggerImmediateRefresh();
+        }
+        updateCountdownDisplay(id, t.remaining);
+    }
+}
+```
+
+### Client-side: Power Reading Thresholds
+
+```javascript
+function powerColor(dbm) {
+    if (dbm === null || dbm === undefined) return '#9e9e9e';  // grey — no reading
+    if (dbm > -10)  return '#4caf50';  // green — good signal
+    if (dbm >= -30) return '#ffc107';  // yellow — marginal
+    return '#f44336';                  // red — poor signal
+}
+```
+
+### Configuration Schema (`app.py` at startup)
+
+```python
+CONFIG_DEFAULTS = {
+    "SWITCH_HOST": "10.252.254.8",
+    "SWITCH_PORT": 3082,
+    "SWITCH_USER": "admin",
+    "SWITCH_PASS": "admin",
+    "SERVER_PORT": 5000,
+}
+# Read from os.environ; warn to stdout for each missing key using its default
+```
+
+---
+
+## Background Watcher Integration
+
+The existing `watcher()` function in `switch1_menu.py` runs as a daemon thread that polls every 30 seconds. Flask's `app.run()` call is blocking, so the watcher is started before `app.run()`:
+
+```python
+# app.py startup (relevant excerpt)
+import switch1_menu as sm
+import threading
+
+sm.load()  # loads patch_timers.json; raises on malformed JSON → logged + sys.exit(1)
+
+watcher_thread = threading.Thread(target=sm.watcher, daemon=True, name="patch-watcher")
+watcher_thread.start()
+
+app.run(host="0.0.0.0", port=SERVER_PORT)
+```
+
+**Thread safety:** `switch1_menu.py` uses its own internal lock (`threading.Lock`) to guard the shared `patch_timers` dict. Flask routes access `get_patches()`, `mk_patch()`, `dl_patch()`, and `save()` through the same lock. No additional locking is required in `app.py`.
+
+**Watcher expiry visibility:** When the watcher removes an expired patch, the next `/api/ports` auto-refresh (≤10 s) will reflect the removal in the browser. The client-side timer reaching zero triggers an *immediate* extra refresh, reducing observed latency to near-zero.
+
+---
+
+## Error Handling Strategy
+
+### Layered Error Handling
+
+```
+Switch TL1 error
+  └─> switch1_menu.py raises exception
+        └─> Flask route catches, returns 503 {"status": "error", "message": "..."}
+              └─> Browser fetch() checks response.ok
+                    └─> Notifications.show(data.message, "error")
+```
+
+### Error Response Catalogue
+
+| Layer | Condition | Action |
+|-------|-----------|--------|
+| `app.py` startup | `patch_timers.json` malformed JSON | Log error + `sys.exit(1)` |
+| `app.py` startup | Missing config keys | Log warning with key names + use defaults |
+| `app.py` startup | Port in use | Log port conflict + `sys.exit(1)` |
+| Flask route | TL1 connection failure | Return 503 |
+| Flask route | TL1 query timeout (>10 s for power) | Return 504 |
+| Flask route | Invalid port numbers | Return 400 |
+| Flask route | Patch conflict | Return 409 |
+| Flask route | Patch not found | Return 404 |
+| Browser | Non-200 response | Display `message` in notification area |
+| Browser | Network error (fetch throws) | Display "Network error — check lab connection" |
+| Browser | Auto-refresh failure | Show stale-data banner; retain last known data |
+| Browser | Power fetch failure | Show error; retain last power data |
+
+### Stale Data Indicator
+
+When `/api/ports` auto-refresh fails, the dashboard shows a yellow banner:
+
+```
+⚠ Data may be stale — last updated HH:MM:SS
+```
+
+This banner is cleared on the next successful refresh.
+
+---
+
+## Correctness Properties
+
+*A property is a characteristic or behavior that should hold true across all valid executions of a system — essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
+
+### Property 1: Port status derivation is consistent with patch state
+
+*For any* set of active patches and timer records, every port that appears in a patch entry SHALL have a non-`"free"` status, and every port NOT in any patch SHALL have status `"free"`.
+
+**Validates: Requirements 3.2, 3.4**
+
+---
+
+### Property 2: Timer colour threshold is monotone
+
+*For any* non-negative remaining-seconds value `s`, the colour returned by the client `portColor(s)` function SHALL be `green` if `s > 300`, `yellow` if `1 ≤ s ≤ 300`, and `grey` if `s ≤ 0` — with no overlap or gap at the boundaries.
+
+**Validates: Requirements 3.2, 3.3, 3.5, 7.5**
+
+---
+
+### Property 3: Power colour thresholds are total and non-overlapping
+
+*For any* dBm value (including `null`), exactly one of `{green, yellow, red, grey}` is returned by `powerColor(dbm)`, and the mapping is: `null → grey`, `dbm > -10 → green`, `-30 ≤ dbm ≤ -10 → yellow`, `dbm < -30 → red`.
+
+**Validates: Requirements 8.4, 8.5, 8.6, 8.7**
+
+---
+
+### Property 4: tkey normalisation is commutative
+
+*For any* two distinct port numbers `a` and `b` in range 1–114, `tkey(a, b) == tkey(b, a)` — i.e., the canonical patch identifier is independent of argument order.
+
+**Validates: Requirements 4.3, 5.2, 5.3**
+
+---
+
+### Property 5: Patch creation round-trip preserves fields
+
+*For any* valid `(port_a, port_b, duration_minutes, label)` combination, a POST to `/api/patches` that returns 201 SHALL produce a response body where `port_a` and `port_b` match the inputs, `patch_id == tkey(port_a, port_b)`, and `expires` is approximately `now + duration_minutes` (within a 2-second tolerance).
+
+**Validates: Requirements 4.3, 4.4**
+
+---
+
+### Property 6: Countdown format covers full range without gaps
+
+*For any* non-negative integer `s`, `formatCountdown(s)` SHALL return a non-empty string: `MM:SS` format for `s < 3600`, `Xh YYm` for `s ≥ 3600`, with no undefined output for any valid input.
+
+**Validates: Requirements 7.1**
+
+---
+
+### Property 7: Validation rejects all out-of-range port inputs
+
+*For any* port number `p` where `p < 1` or `p > 114`, the client-side `validateForm()` SHALL reject the submission (return `false`) and the API_Server SHALL return HTTP 400 for any such value that bypasses client validation.
+
+**Validates: Requirements 4.5**
+
+---
+
+### Property 8: Validation rejects all invalid duration inputs
+
+*For any* duration value `d` where `d ≤ 0` or `d > 10080`, the client-side form validation SHALL prevent submission, and the API_Server SHALL return HTTP 400 for any such value reaching the server.
+
+**Validates: Requirements 4.6**
+
+---
+
+## Testing Strategy
+
+### Dual Testing Approach
+
+Unit tests cover specific examples, edge cases, and integration points. Property-based tests verify universal properties across the full input space. Both are complementary and necessary.
+
+### Property-Based Testing
+
+**Library:** [`hypothesis`](https://hypothesis.readthedocs.io/) (Python) — installable via `pip install hypothesis`.
+
+Each property-based test runs a minimum of 100 iterations. Tests are tagged with the feature and property number:
+
+```python
+# Feature: nokia-lab-switch-manager, Property 1: port status consistency
+@given(st.lists(...), st.dictionaries(...))
+@settings(max_examples=100)
+def test_port_status_consistency(patches, timers):
+    ...
+```
+
+**Properties to implement as PBT tests:**
+
+| Design Property | Test Module | PBT Pattern |
+|----------------|-------------|-------------|
+| Property 1 — Port status consistency | `test_port_status.py` | Invariant |
+| Property 2 — Timer colour monotone | `test_color_utils.py` | Metamorphic / boundary |
+| Property 3 — Power colour total | `test_color_utils.py` | Exhaustive partition |
+| Property 4 — tkey commutativity | `test_tkey.py` | Round-trip / symmetry |
+| Property 5 — Patch creation round-trip | `test_api_patches.py` | Round-trip (Flask test client) |
+| Property 6 — Countdown format coverage | `test_timer_format.py` | Invariant |
+| Property 7 — Port range rejection | `test_validation.py` | Error conditions |
+| Property 8 — Duration range rejection | `test_validation.py` | Error conditions |
+
+### Unit Tests
+
+Cover:
+- Startup: malformed `patch_timers.json` → exits with non-zero code
+- Startup: missing config keys → warning logged, defaults applied
+- Startup: port conflict → error logged, process exits
+- `GET /api/ports` with no active patches → all 114 ports returned as `"free"`
+- `DELETE /api/patches/<id>` for non-existent patch → 404
+- `POST /api/patches` with identical ports → 400
+- `POST /api/patches` with label > 64 chars → 400
+- Stale data banner appears after failed auto-refresh (JS unit test with jsdom)
+
+### Integration Tests
+
+Cover:
+- Full startup with a mock TL1 socket, then `GET /api/ports`
+- `POST /api/patches` → patch appears in `GET /api/ports` response
+- Background watcher removes expired patch → next `GET /api/ports` reflects removal
+- `GET /api/power` timeout (mock switch delays >10 s) → 504 response
+
+### Test Configuration
+
+```
+tests/
+├── test_port_status.py     # PBT: Property 1
+├── test_color_utils.py     # PBT: Properties 2, 3
+├── test_tkey.py            # PBT: Property 4
+├── test_api_patches.py     # PBT: Property 5 (Flask test client)
+├── test_timer_format.py    # PBT: Property 6
+├── test_validation.py      # PBT: Properties 7, 8
+├── test_unit_startup.py    # Unit: startup edge cases
+├── test_unit_api.py        # Unit: specific HTTP scenarios
+└── test_integration.py     # Integration: end-to-end flows
+```
