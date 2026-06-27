@@ -1,18 +1,1 @@
-Last login: Sat Jun 27 14:01:28 on ttys000
-P3378852@CHTRMACHRWHH3 ~ % ssh lab@10.252.254.207
-lab@10.252.254.207's password: 
-Activate the web console with: systemctl enable --now cockpit.socket
-
-Last login: Sat Jun 27 14:01:39 2026 from 10.54.46.29
-[lab@sandbox ~]$ sudo ip addr add 10.252.255.232/27 dev ens33
-[sudo] password for lab: 
-[lab@sandbox ~]$ ping -c2 10.252.255.225
-PING 10.252.255.225 (10.252.255.225) 56(84) bytes of data.
-From 10.252.255.232 icmp_seq=1 Destination Host Unreachable
-From 10.252.255.232 icmp_seq=2 Destination Host Unreachable
-
---- 10.252.255.225 ping statistics ---
-2 packets transmitted, 0 received, +2 errors, 100% packet loss, time 1018ms
-pipe 2
-[lab@sandbox ~]$ 
-
+Quick update on 10.252.255.232 — it won't work on 207 as-is. The sandbox VM has only one NIC (ens33) on 10.252.254.192/27, and VLAN 70 (10.252.255.224/27) isn't reachable on it at layer 2: when I add .232 to ens33, the gateway .225 goes unreachable (ARP fails) — the earlier ping to .225 was just routed via my default gateway. To use .232 on 207 I'd need either a second vNIC on the VM attached to the VLAN 70 port group, or ens33's uplink trunked with VLAN 70 tagged so I can make an ens33.70 subinterface. Once either is in place I'll assign .232 and send you the interface name. Thanks!
