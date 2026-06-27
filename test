@@ -1,10 +1,10 @@
-44879753f6a132003e137de84fe6c938  lab_test_layer1.py
-[lab@sandbox nokia_lab]$ grep -n "show admin user \*" lab_test_layer1.py     # NEW file has this (the * list command)
-grep -n "show admin users"   lab_test_layer1.py     # should print NOTHING (that was the broken old command)
-8:  list:     show admin user *
-114:    """First column of `show admin user *`, skipping prompt/echo/header/separator lines."""
-123:            in line  # prompt or echoed-command line (e.g. "NLL-ILA1# show admin user *")
-142:    out = send_and_wait(chan, "show admin user *")
-145:            "device REJECTED 'show admin user *' (see output above) — "
-151:            "'show admin user *' returned no users — unexpected; refusing to continue."
-[lab@sandbox nokia_lab]$ 
+Hey Ms.Sunaina. I am building a full-stack web app and running it on the lab machine I ssh into. I am struck on the right way to make it reachable from a browser, whether I should be tunneling to it over ssh, getting an internal hostname/IP or having something provisioned for it. Could you help me create that IP so I start hosting it in the lab?
+Hi, we have a couple of IPs available to use from VLAN 70, give me a few mins
+10.252.255.232
+gateway: 10.252.255.225
+subnet is /27 
+Let me know if this works and let me know the name of this int which you are abt to create and il update the IP page 
+i have my code inside the lab ssh lab@10.252.254.207, so will this ip work?\Let me check 
+use the IP I gave you 
+207 is the sandbox VM 
+Let me know if you will need the NTP and DNS at some point 
