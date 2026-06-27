@@ -1,17 +1,23 @@
-Last login: Sat Jun 27 13:05:04 2026 from 10.54.46.29
-[lab@sandbox ~]$ ip -br addr
-lo               UNKNOWN        127.0.0.1/8 ::1/128 
-ens33            UP             10.252.254.207/27 2600:6ce6:41ff:6::15/64 fe80::250:56ff:fe89:426b/64 
-[lab@sandbox ~]$ ip route
-default via 10.252.254.193 dev ens33 proto static metric 100 
-10.252.254.192/27 dev ens33 proto kernel scope link src 10.252.254.207 metric 100 
-[lab@sandbox ~]$ ping -c2 10.252.255.225
-PING 10.252.255.225 (10.252.255.225) 56(84) bytes of data.
-64 bytes from 10.252.255.225: icmp_seq=1 ttl=255 time=0.716 ms
-64 bytes from 10.252.255.225: icmp_seq=2 ttl=255 time=0.596 ms
+2026-06-27 14:24:38,128 WARNING backend: switch1_menu.py unavailable (No module named 'switch1_menu') — falling back to MOCK
+Traceback (most recent call last):
+  File "/home/lab/polatis_switch/core_backend.py", line 242, in _init
+    _use_real()
+  File "/home/lab/polatis_switch/core_backend.py", line 219, in _use_real
+    import switch1_menu as sm
+ModuleNotFoundError: No module named 'switch1_menu'
 
---- 10.252.255.225 ping statistics ---
-2 packets transmitted, 2 received, 0% packet loss, time 1029ms
-rtt min/avg/max/mdev = 0.596/0.656/0.716/0.060 ms
-[lab@sandbox ~]$ 
+During handling of the above exception, another exception occurred:
 
+Traceback (most recent call last):
+  File "/home/lab/polatis_switch/app.py", line 226, in <module>
+    main()
+  File "/home/lab/polatis_switch/app.py", line 218, in main
+    core.load_timers()        # loads patch_timers.json via switch1_menu
+  File "/home/lab/polatis_switch/core_backend.py", line 267, in load_timers
+    _init(); _timers.load()
+  File "/home/lab/polatis_switch/core_backend.py", line 245, in _init
+    _use_mock()
+  File "/home/lab/polatis_switch/core_backend.py", line 227, in _use_mock
+    import mock_switch
+ModuleNotFoundError: No module named 'mock_switch'
+[lab@sandbox polatis_switch]$ 
