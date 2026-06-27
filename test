@@ -1,67 +1,20 @@
-import socket, time, json, os, threading
-from datetime import datetime, timedelta
+Last login: Sat Jun 27 13:05:04 2026 from 10.54.46.29
+[lab@sandbox ~]$ ip -br addr
+lo               UNKNOWN        127.0.0.1/8 ::1/128 
+ens33            UP             10.252.254.207/27 2600:6ce6:41ff:6::15/64 fe80::250:56ff:fe89:426b/64 
+[lab@sandbox ~]$ ip route
+default via 10.252.254.193 dev ens33 proto static metric 100 
+10.252.254.192/27 dev ens33 proto kernel scope link src 10.252.254.207 metric 100 
+[lab@sandbox ~]$ ping -c2 10.252.255.225
+PING 10.252.255.225 (10.252.255.225) 56(84) bytes of data.
+64 bytes from 10.252.255.225: icmp_seq=1 ttl=255 time=0.716 ms
+64 bytes from 10.252.255.225: icmp_seq=2 ttl=255 time=0.596 ms
 
-SWITCH_IP = "10.252.254.8"
-SWITCH_PORT = 3082
-SWITCH_USER = "root"
-SWITCH_PASS = "root"
-TOTAL_PORTS = 114
-TIMEOUT = 30
-READ_PAUSE = 1.5
-MAX_TRIES = 4
-TIMER_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "patch_timers.json")
-G = "\033[92m"
-Y = "\033[93m"
-R = "\033[91m"
-C = "\033[96m"
-B = "\033[1m"
-X = "\033[0m"
-D = "\033[2m"
-patch_timers = {}
-lock = threading.Lock()
+--- 10.252.255.225 ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 1029ms
+rtt min/avg/max/mdev = 0.596/0.656/0.716/0.060 ms
+[lab@sandbox ~]$ 
 
-def load():
-    global patch_timers
-    if os.path.exists(TIMER_FILE):
-        try:
-            with open(TIMER_FILE,"r") as f: patch_timers = json.load(f)
-        except: patch_timers = {}
-
-def save():
-    with open(TIMER_FILE,"w") as f: json.dump(patch_timers,f)
-
-def tkey(a,b): return f"{min(a,b)}-{max(a,b)}"
-
-def fmt(s):
-    if s is None: return "no timer"
-    if s<=0: return R+"EXPIRED"+X
-    h=s//3600; m=(s%3600)//60; sc=s%60
-    t=f"{h}h{m}m" if h>0 else (f"{m}m{sc}s" if m>0 else f"{sc}s")
-    return (Y if s<1800 else G)+t+X
-
-def conn():
-    import re as _re
-    sock = socket.create_connection((SWITCH_IP, SWITCH_PORT), 10)
-    sock.settimeout(10)
-    _send_read(sock, "act-user::root:1::root;")
-    return sock
-
-def _send_read(sock, cmd):
-    import re as _re
-    if not cmd.endswith(";"): cmd += ";"
-    sock.sendall((cmd + "\r\n").encode("ascii"))
-    buf = ""
-    while True:
-        try:
-            chunk = sock.recv(4096).decode("ascii", errors="replace")
-        except socket.timeout:
-            break
-        if not chunk: break
-        buf += chunk
-        if _re.search(r"(?m)^\s*;\s*$", buf): break
-    return buf
-
-def login(s): return True
 def rd(s, cmd):
     return _send_read(s, cmd)
 
