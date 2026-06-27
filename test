@@ -1,582 +1,620 @@
-Hey Ms.Sunaina. I am building a full-stack web app and running it on the lab machine I ssh into. I am struck on the right way to make it reachable from a browser, whether I should be tunneling to it over ssh, getting an internal hostname/IP or having something provisioned for it. Could you help me create that IP so I start hosting it in the lab?
-Hi, we have a couple of IPs available to use from VLAN 70, give me a few mins
-10.252.255.232
-gateway: 10.252.255.225
-subnet is /27 
-Let me know if this works and let me know the name of this int which you are abt to create and il update the IP page 
-i have my code inside the lab ssh lab@10.252.254.207, so will this ip work?\Let me check 
-use the IP I gave you 
-207 is the sandbox VM 
-Let me know if you will need the NTP and DNS at some point 
-# Design Document
-
-## nokia-lab-switch-manager
-
----
-
-## Overview
-
-The nokia-lab-switch-manager is a thin full-stack web application that wraps the existing `switch1_menu.py` Nokia lab tool and exposes it through a browser UI. Network engineers currently manage a Polatis optical switch via TL1 protocol in a Python terminal script; this project lifts that into a browser without rewriting the proven core logic.
-
-**Approach:**
-- A Flask application (`app.py`) imports and delegates to the functions already in `switch1_menu.py`
-- A single HTML file (`static/index.html`) with embedded CSS and vanilla JS implements the entire frontend as a single-page application (SPA) with JS-driven view switching
-- All assets are served locally from Flask — no CDN, no Node.js, no build pipeline
-- The existing `Background_Watcher` thread and `patch_timers.json` persistence layer remain intact
-
-**Key design decisions:**
-- Flask over FastAPI: simpler stdlib-like API, no async mental model required for a single-engineer lab tool, and the synchronous model mirrors the existing blocking TL1 socket calls
-- Single HTML file: maximises portability (one file to copy), eliminates build tools, and matches the lab's lightweight deployment requirement
-- `patch_id` is the `tkey` canonical form (`"{min}-{max}"`) which acts as a natural key for the port pair
-- All timer state is owned by the server; the client resyncs on every `/api/ports` poll and decrements locally only between polls
-
----
-
-## Architecture
-
-### Component Diagram
-
-```mermaid
-graph TD
-    subgraph Lab_Machine ["Lab Machine (10.252.254.207)"]
-        Browser["Browser\n(Chrome / Firefox / Edge)"]
-        subgraph Flask_Process ["Python Process (app.py)"]
-            Flask["Flask\napp.py\n:5000"]
-            Core["switch1_menu.py\n(get_patches, get_power,\nmk_patch, dl_patch,\ntkey, load, save)"]
-            Watcher["Background_Watcher\nthread (30s loop)"]
-            JSON["patch_timers.json"]
-        end
-        Static["static/\nindex.html"]
-    end
-    Switch["Polatis Switch\n10.252.254.8:3082\n(TL1)"]
-
-    Browser -- "HTTP GET / " --> Flask
-    Browser -- "HTTP REST /api/*" --> Flask
-    Flask -- "serves" --> Static
-    Flask -- "delegates" --> Core
-    Core -- "TL1 socket" --> Switch
-    Core -- "read/write" --> JSON
-    Watcher -- "calls dl_patch, save" --> Core
-    Watcher -- "read/write" --> JSON
-```
-
-### Request Flow
-
-```mermaid
-sequenceDiagram
-    participant B as Browser
-    participant F as Flask (app.py)
-    participant C as switch1_menu.py
-    participant S as Polatis Switch
-
-    B->>F: GET /api/ports
-    F->>C: get_patches()
-    C->>S: TL1 RTRV-PATCH
-    S-->>C: patch list
-    C-->>F: patch dict
-    F->>F: merge patch_timers.json
-    F-->>B: 200 JSON {ports, patches}
-
-    B->>F: POST /api/patches {portA, portB, duration, label}
-    F->>F: validate inputs
-    F->>C: mk_patch(a, b)
-    C->>S: TL1 ED-PATCH
-    S-->>C: OK
-    F->>C: save()
-    F-->>B: 201 JSON {patch}
-```
-
----
-
-## File Structure
-
-```
-project-root/
-├── app.py                  # Flask server — API routes, startup, config
-├── switch1_menu.py         # Existing core logic (unchanged)
-├── patch_timers.json       # Timer persistence (auto-created if absent)
-├── requirements.txt        # Pinned pip deps (flask==3.0.3)
-├── static/
-│   └── index.html          # Entire frontend: HTML + CSS + JS, single file
-└── .env                    # Optional: SWITCH_HOST, SWITCH_PORT, etc. (not committed)
-```
-
-**Rationale for `static/index.html` monolith:** The lab deployment requirement explicitly prohibits Node.js and a build pipeline. A single file is trivially deployable (`scp static/index.html lab:…`), inspectable in any text editor, and eliminates relative-path concerns.
-
----
-
-## Components and Interfaces
-
-### Flask Application (`app.py`)
-
-Responsibilities:
-- Read configuration from environment variables / `.env` file at startup
-- Register REST API blueprints
-- Serve `static/index.html` at `/`
-- Start `Background_Watcher` daemon thread on startup
-- Load `patch_timers.json` on startup (halt on parse error per Req 6.7)
-
-```python
-# Startup sequence (pseudocode)
-config = load_config()          # env vars → config dict, warn on missing
-validate_config(config)         # write warnings; halt only if stdout fails
-load()                          # switch1_menu.load() — loads patch_timers.json
-start_watcher()                 # switch1_menu.watcher() in daemon thread
-app.run(host="0.0.0.0", port=config["port"])
-```
-
-### REST API Layer (Flask routes in `app.py`)
-
-All endpoints return `Content-Type: application/json`. Error responses always include `{"status": "error", "message": "..."}`.
-
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET` | `/` | Serve `static/index.html` |
-| `GET` | `/api/ports` | All 114 ports + active patches with timer seconds |
-| `POST` | `/api/patches` | Create a new patch |
-| `DELETE` | `/api/patches/<patch_id>` | Remove a patch by tkey |
-| `GET` | `/api/power` | Optical power readings for all 114 ports |
-
-### Frontend (`static/index.html`)
-
-Four logical views, each a `<section>` that is shown/hidden via CSS `display` toggling:
-
-| View ID | Nav Label | Primary Content |
-|---------|-----------|-----------------|
-| `#view-dashboard` | Port Dashboard | 114-port grid + active patches table |
-| `#view-create` | Create Patch | Form: portA, portB, duration, label |
-| `#view-remove` | Remove Patch | List of active patches + confirm button |
-| `#view-power` | Power Monitor | 114-port power grid + refresh button |
-
-**JS module boundaries (IIFE pattern, no bundler):**
-
-```
-App (global state)
-├── Router        — showView(viewId), highlights nav link
-├── Api           — fetch wrappers (GET, POST, DELETE) returning Promises
-├── Dashboard     — renderPortGrid(), renderPatchTable(), handleStaleData()
-├── TimerManager  — syncTimers(patches), tick(), formatCountdown(secs)
-├── CreatePatch   — validateForm(), submitPatch()
-├── RemovePatch   — renderList(), confirmRemove(patchId)
-├── PowerMonitor  — renderPowerGrid(), refresh()
-└── Notifications — show(msg, level), clear()
-```
-
----
-
-## API Contract
-
-### `GET /api/ports`
-
-**Response 200:**
-```json
-{
-  "ports": [
-    { "port": 1, "status": "free" },
-    { "port": 2, "status": "patched" },
-    { "port": 5, "status": "expiring" }
-  ],
-  "patches": [
-    {
-      "patch_id": "2-7",
-      "port_a": 2,
-      "port_b": 7,
-      "label": "backbone-link",
-      "expires": "2025-07-14T10:30:00",
-      "remaining_seconds": 3542
-    }
-  ]
-}
-```
-
-Port `status` values:
-- `"free"` — not part of any active patch
-- `"patched"` — part of an active patch with > 300 s remaining
-- `"expiring"` — part of an active patch with 1–300 s remaining
-- `"expired"` — remaining_seconds ≤ 0 (Background_Watcher hasn't removed yet)
-
-**Response 503:** Switch unreachable.
-
----
-
-### `POST /api/patches`
-
-**Request body:**
-```json
-{
-  "port_a": 5,
-  "port_b": 22,
-  "duration_minutes": 60,
-  "label": "test-link"
-}
-```
-
-`label` is optional (omit or `null`). Maximum 64 characters.
-
-**Response 201:**
-```json
-{
-  "patch_id": "5-22",
-  "port_a": 5,
-  "port_b": 22,
-  "label": "test-link",
-  "duration_minutes": 60,
-  "expires": "2025-07-14T11:30:00"
-}
-```
-
-**Error responses:**
-
-| HTTP | Condition |
-|------|-----------|
-| 400 | `port_a == port_b` |
-| 400 | Label exceeds 64 characters |
-| 400 | Duration ≤ 0 or > 10080 |
-| 400 | Port number outside 1–114 |
-| 409 | One or both ports already in an active patch |
-| 503 | Switch unreachable |
-
----
-
-### `DELETE /api/patches/<patch_id>`
-
-`patch_id` is the tkey string, e.g. `5-22`.
-
-**Response 200:**
-```json
-{
-  "patch_id": "5-22",
-  "port_a": 5,
-  "port_b": 22,
-  "label": "test-link"
-}
-```
-
-**Error responses:**
-
-| HTTP | Condition |
-|------|-----------|
-| 400 | `patch_id` format invalid (not parseable as two integers) |
-| 404 | Patch not found |
-| 503 | Switch unreachable |
-
----
-
-### `GET /api/power`
-
-**Response 200:**
-```json
-{
-  "readings": [
-    { "port": 1, "dbm": -5.2 },
-    { "port": 2, "dbm": -15.0 },
-    { "port": 3, "dbm": null }
-  ]
-}
-```
-
-`dbm` is `null` when the switch returns no reading for that port.
-
-**Error responses:**
-
-| HTTP | Condition |
-|------|-----------|
-| 503 | Switch unreachable |
-| 504 | Switch query exceeded 10-second timeout |
-
----
-
-## Data Models
-
-### Server-side: `patch_timers.json`
-
-Existing format — unchanged:
-
-```json
-{
-  "5-22": {
-    "expires": "2025-07-14T11:30:00",
-    "label": "test-link"
-  },
-  "10-50": {
-    "expires": "2025-07-14T09:45:00",
-    "label": ""
-  }
-}
-```
-
-Key: `tkey(a, b)` = `f"{min(a,b)}-{max(a,b)}"`. Value: object with `expires` (ISO-8601 UTC string) and `label` (string, may be empty).
-
-### Server-side: Port Status Derivation
-
-```python
-def derive_port_status(port: int, patches: dict, timers: dict) -> str:
-    """
-    patches: dict returned by get_patches() — maps port -> partner_port
-    timers:  loaded patch_timers.json dict
-    """
-    if port not in patches:
-        return "free"
-    key = tkey(port, patches[port])
-    entry = timers.get(key)
-    if not entry:
-        return "patched"  # patch exists but no timer record
-    remaining = (datetime.fromisoformat(entry["expires"]) - datetime.utcnow()).total_seconds()
-    if remaining <= 0:
-        return "expired"
-    if remaining <= 300:
-        return "expiring"
-    return "patched"
-```
-
-### Client-side: TimerManager State
-
-```javascript
-// Internal state owned by TimerManager
-const timers = {};  // patch_id -> { remaining: Number, intervalId: Number }
-
-// On each /api/ports response:
-function syncTimers(patches) {
-    // Cancel intervals for patches no longer present
-    // Create/update entries for each patch
-    // remaining = patch.remaining_seconds (from server)
-}
-
-// setInterval(tick, 1000) — global 1-second ticker
-function tick() {
-    for (const [id, t] of Object.entries(timers)) {
-        t.remaining -= 1;
-        if (t.remaining <= 0) {
-            markExpired(id);
-            triggerImmediateRefresh();
-        }
-        updateCountdownDisplay(id, t.remaining);
-    }
-}
-```
-
-### Client-side: Power Reading Thresholds
-
-```javascript
-function powerColor(dbm) {
-    if (dbm === null || dbm === undefined) return '#9e9e9e';  // grey — no reading
-    if (dbm > -10)  return '#4caf50';  // green — good signal
-    if (dbm >= -30) return '#ffc107';  // yellow — marginal
-    return '#f44336';                  // red — poor signal
-}
-```
-
-### Configuration Schema (`app.py` at startup)
-
-```python
-CONFIG_DEFAULTS = {
-    "SWITCH_HOST": "10.252.254.8",
-    "SWITCH_PORT": 3082,
-    "SWITCH_USER": "admin",
-    "SWITCH_PASS": "admin",
-    "SERVER_PORT": 5000,
-}
-# Read from os.environ; warn to stdout for each missing key using its default
-```
-
----
-
-## Background Watcher Integration
-
-The existing `watcher()` function in `switch1_menu.py` runs as a daemon thread that polls every 30 seconds. Flask's `app.run()` call is blocking, so the watcher is started before `app.run()`:
-
-```python
-# app.py startup (relevant excerpt)
-import switch1_menu as sm
-import threading
+import socket, time, json, os, threading
 
-sm.load()  # loads patch_timers.json; raises on malformed JSON → logged + sys.exit(1)
+from datetime import datetime, timedelta
 
-watcher_thread = threading.Thread(target=sm.watcher, daemon=True, name="patch-watcher")
-watcher_thread.start()
 
-app.run(host="0.0.0.0", port=SERVER_PORT)
-```
 
-**Thread safety:** `switch1_menu.py` uses its own internal lock (`threading.Lock`) to guard the shared `patch_timers` dict. Flask routes access `get_patches()`, `mk_patch()`, `dl_patch()`, and `save()` through the same lock. No additional locking is required in `app.py`.
+SWITCH_IP = "10.252.254.8"
 
-**Watcher expiry visibility:** When the watcher removes an expired patch, the next `/api/ports` auto-refresh (≤10 s) will reflect the removal in the browser. The client-side timer reaching zero triggers an *immediate* extra refresh, reducing observed latency to near-zero.
+SWITCH_PORT = 3082
 
----
+SWITCH_USER = "root"
 
-## Error Handling Strategy
+SWITCH_PASS = "root"
 
-### Layered Error Handling
+TOTAL_PORTS = 114
 
-```
-Switch TL1 error
-  └─> switch1_menu.py raises exception
-        └─> Flask route catches, returns 503 {"status": "error", "message": "..."}
-              └─> Browser fetch() checks response.ok
-                    └─> Notifications.show(data.message, "error")
-```
+TIMEOUT = 30
 
-### Error Response Catalogue
+READ_PAUSE = 1.5
 
-| Layer | Condition | Action |
-|-------|-----------|--------|
-| `app.py` startup | `patch_timers.json` malformed JSON | Log error + `sys.exit(1)` |
-| `app.py` startup | Missing config keys | Log warning with key names + use defaults |
-| `app.py` startup | Port in use | Log port conflict + `sys.exit(1)` |
-| Flask route | TL1 connection failure | Return 503 |
-| Flask route | TL1 query timeout (>10 s for power) | Return 504 |
-| Flask route | Invalid port numbers | Return 400 |
-| Flask route | Patch conflict | Return 409 |
-| Flask route | Patch not found | Return 404 |
-| Browser | Non-200 response | Display `message` in notification area |
-| Browser | Network error (fetch throws) | Display "Network error — check lab connection" |
-| Browser | Auto-refresh failure | Show stale-data banner; retain last known data |
-| Browser | Power fetch failure | Show error; retain last power data |
+MAX_TRIES = 4
 
-### Stale Data Indicator
+TIMER_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "patch_timers.json")
 
-When `/api/ports` auto-refresh fails, the dashboard shows a yellow banner:
+G = "\033[92m"
 
-```
-⚠ Data may be stale — last updated HH:MM:SS
-```
+Y = "\033[93m"
 
-This banner is cleared on the next successful refresh.
+R = "\033[91m"
 
----
+C = "\033[96m"
 
-## Correctness Properties
+B = "\033[1m"
 
-*A property is a characteristic or behavior that should hold true across all valid executions of a system — essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
+X = "\033[0m"
 
-### Property 1: Port status derivation is consistent with patch state
+D = "\033[2m"
 
-*For any* set of active patches and timer records, every port that appears in a patch entry SHALL have a non-`"free"` status, and every port NOT in any patch SHALL have status `"free"`.
+patch_timers = {}
 
-**Validates: Requirements 3.2, 3.4**
+lock = threading.Lock()
 
----
 
-### Property 2: Timer colour threshold is monotone
 
-*For any* non-negative remaining-seconds value `s`, the colour returned by the client `portColor(s)` function SHALL be `green` if `s > 300`, `yellow` if `1 ≤ s ≤ 300`, and `grey` if `s ≤ 0` — with no overlap or gap at the boundaries.
+def load():
 
-**Validates: Requirements 3.2, 3.3, 3.5, 7.5**
+    global patch_timers
 
----
+    if os.path.exists(TIMER_FILE):
 
-### Property 3: Power colour thresholds are total and non-overlapping
+        try:
 
-*For any* dBm value (including `null`), exactly one of `{green, yellow, red, grey}` is returned by `powerColor(dbm)`, and the mapping is: `null → grey`, `dbm > -10 → green`, `-30 ≤ dbm ≤ -10 → yellow`, `dbm < -30 → red`.
+            with open(TIMER_FILE,"r") as f: patch_timers = json.load(f)
 
-**Validates: Requirements 8.4, 8.5, 8.6, 8.7**
+        except: patch_timers = {}
 
----
 
-### Property 4: tkey normalisation is commutative
 
-*For any* two distinct port numbers `a` and `b` in range 1–114, `tkey(a, b) == tkey(b, a)` — i.e., the canonical patch identifier is independent of argument order.
+def save():
 
-**Validates: Requirements 4.3, 5.2, 5.3**
+    with open(TIMER_FILE,"w") as f: json.dump(patch_timers,f)
 
----
 
-### Property 5: Patch creation round-trip preserves fields
 
-*For any* valid `(port_a, port_b, duration_minutes, label)` combination, a POST to `/api/patches` that returns 201 SHALL produce a response body where `port_a` and `port_b` match the inputs, `patch_id == tkey(port_a, port_b)`, and `expires` is approximately `now + duration_minutes` (within a 2-second tolerance).
+def tkey(a,b): return f"{min(a,b)}-{max(a,b)}"
 
-**Validates: Requirements 4.3, 4.4**
 
----
 
-### Property 6: Countdown format covers full range without gaps
+def fmt(s):
 
-*For any* non-negative integer `s`, `formatCountdown(s)` SHALL return a non-empty string: `MM:SS` format for `s < 3600`, `Xh YYm` for `s ≥ 3600`, with no undefined output for any valid input.
+    if s is None: return "no timer"
 
-**Validates: Requirements 7.1**
+    if s<=0: return R+"EXPIRED"+X
 
----
+    h=s//3600; m=(s%3600)//60; sc=s%60
 
-### Property 7: Validation rejects all out-of-range port inputs
+    t=f"{h}h{m}m" if h>0 else (f"{m}m{sc}s" if m>0 else f"{sc}s")
 
-*For any* port number `p` where `p < 1` or `p > 114`, the client-side `validateForm()` SHALL reject the submission (return `false`) and the API_Server SHALL return HTTP 400 for any such value that bypasses client validation.
+    return (Y if s<1800 else G)+t+X
 
-**Validates: Requirements 4.5**
 
----
 
-### Property 8: Validation rejects all invalid duration inputs
+def conn():
 
-*For any* duration value `d` where `d ≤ 0` or `d > 10080`, the client-side form validation SHALL prevent submission, and the API_Server SHALL return HTTP 400 for any such value reaching the server.
+    import re as _re
 
-**Validates: Requirements 4.6**
+    sock = socket.create_connection((SWITCH_IP, SWITCH_PORT), 10)
 
----
+    sock.settimeout(10)
 
-## Testing Strategy
+    _send_read(sock, "act-user::root:1::root;")
 
-### Dual Testing Approach
+    return sock
 
-Unit tests cover specific examples, edge cases, and integration points. Property-based tests verify universal properties across the full input space. Both are complementary and necessary.
 
-### Property-Based Testing
 
-**Library:** [`hypothesis`](https://hypothesis.readthedocs.io/) (Python) — installable via `pip install hypothesis`.
+def _send_read(sock, cmd):
 
-Each property-based test runs a minimum of 100 iterations. Tests are tagged with the feature and property number:
+    import re as _re
 
-```python
-# Feature: nokia-lab-switch-manager, Property 1: port status consistency
-@given(st.lists(...), st.dictionaries(...))
-@settings(max_examples=100)
-def test_port_status_consistency(patches, timers):
-    ...
-```
+    if not cmd.endswith(";"): cmd += ";"
 
-**Properties to implement as PBT tests:**
+    sock.sendall((cmd + "\r\n").encode("ascii"))
 
-| Design Property | Test Module | PBT Pattern |
-|----------------|-------------|-------------|
-| Property 1 — Port status consistency | `test_port_status.py` | Invariant |
-| Property 2 — Timer colour monotone | `test_color_utils.py` | Metamorphic / boundary |
-| Property 3 — Power colour total | `test_color_utils.py` | Exhaustive partition |
-| Property 4 — tkey commutativity | `test_tkey.py` | Round-trip / symmetry |
-| Property 5 — Patch creation round-trip | `test_api_patches.py` | Round-trip (Flask test client) |
-| Property 6 — Countdown format coverage | `test_timer_format.py` | Invariant |
-| Property 7 — Port range rejection | `test_validation.py` | Error conditions |
-| Property 8 — Duration range rejection | `test_validation.py` | Error conditions |
+    buf = ""
 
-### Unit Tests
+    while True:
 
-Cover:
-- Startup: malformed `patch_timers.json` → exits with non-zero code
-- Startup: missing config keys → warning logged, defaults applied
-- Startup: port conflict → error logged, process exits
-- `GET /api/ports` with no active patches → all 114 ports returned as `"free"`
-- `DELETE /api/patches/<id>` for non-existent patch → 404
-- `POST /api/patches` with identical ports → 400
-- `POST /api/patches` with label > 64 chars → 400
-- Stale data banner appears after failed auto-refresh (JS unit test with jsdom)
+        try:
 
-### Integration Tests
+            chunk = sock.recv(4096).decode("ascii", errors="replace")
 
-Cover:
-- Full startup with a mock TL1 socket, then `GET /api/ports`
-- `POST /api/patches` → patch appears in `GET /api/ports` response
-- Background watcher removes expired patch → next `GET /api/ports` reflects removal
-- `GET /api/power` timeout (mock switch delays >10 s) → 504 response
+        except socket.timeout:
 
-### Test Configuration
+            break
 
-```
-tests/
-├── test_port_status.py     # PBT: Property 1
-├── test_color_utils.py     # PBT: Properties 2, 3
-├── test_tkey.py            # PBT: Property 4
-├── test_api_patches.py     # PBT: Property 5 (Flask test client)
-├── test_timer_format.py    # PBT: Property 6
-├── test_validation.py      # PBT: Properties 7, 8
-├── test_unit_startup.py    # Unit: startup edge cases
-├── test_unit_api.py        # Unit: specific HTTP scenarios
-└── test_integration.py     # Integration: end-to-end flows
-```
+        if not chunk: break
+
+        buf += chunk
+
+        if _re.search(r"(?m)^\s*;\s*$", buf): break
+
+    return buf
+
+
+
+def login(s): return True def rd(s, cmd):
+
+    return _send_read(s, cmd)
+
+
+
+def rw(s,cmd):
+
+    s.sendall((cmd+"\r\n").encode()); time.sleep(READ_PAUSE); r=b""
+
+    try:
+
+        s.settimeout(1.0)
+
+        while True:
+
+            c=s.recv(4096)
+
+            if not c: break
+
+            r+=c
+
+    except socket.timeout: pass
+
+    finally: s.settimeout(TIMEOUT)
+
+    return r.decode(errors="replace")
+
+
+
+def get_patches():
+
+    try:
+
+        s=conn()
+
+        if not login(s): return None,"Login failed"
+
+        r=rd(s,"rtrv-patch:::1:;"); s.close()
+
+        patches=[]
+
+        for line in r.splitlines():
+
+            line=line.strip().strip('"')
+
+            import re as _re
+
+            m = _re.match(r'(\d+)\s*,\s*(\d+)', line)
+
+            if m:
+
+                try: patches.append((int(m.group(1)), int(m.group(2))))
+
+                except ValueError: pass
+
+        return patches,None
+
+    except Exception as e: return None,str(e)
+
+
+
+def get_power():
+
+    try:
+
+        s=conn()
+
+        if not login(s): return None,"Login failed"
+
+        rd(s,"set-port-pmon::1&&114:1:::wave=1310;")
+
+        r=rd(s,"rtrv-port-pmon::1&&114:1:;")
+
+        s.close()
+
+        out={}
+
+import re as _re
+
+        for line in r.splitlines():
+
+            line=line.strip().strip('"')
+
+            m=_re.match(r'(\d+):([\d.]+),([\d.-]+),(\d+)', line)
+
+            if m:
+
+                try: out[int(m.group(1))]=float(m.group(3))
+
+                except: pass
+
+        return out,None
+
+    except Exception as e: return None,str(e)
+
+
+
+def mk_patch(a,b):
+
+    try:
+
+        s=conn()
+
+        if not login(s): return False,"Login failed"
+
+        cmd=f"ent-patch::{a},{b}:1:;"
+
+        for i in range(1,MAX_TRIES+1):
+
+            rw(s,cmd); time.sleep(READ_PAUSE)
+
+            v=rd(s,"rtrv-patch:::1:;")
+
+            if f"{a},{b}" in v or f"{b},{a}" in v: s.close(); return True,None
+
+            print(f"  Retry {i}/{MAX_TRIES}...")
+
+        s.close(); return False,"Not confirmed"
+
+    except Exception as e: return False,str(e)            print(f"  Retry {i}/{MAX_TRIES}...")
+
+        s.close(); return False,"Not confirmed"
+
+    except Exception as e: return False,str(e)
+
+
+
+def dl_patch(a,b):
+
+    try:
+
+        s=conn()
+
+        if not login(s): return False,"Login failed"
+
+        cmd=f"dlt-patch::{a}&{b}:1:;"
+
+        for i in range(1,MAX_TRIES+1):
+
+            rw(s,cmd); time.sleep(READ_PAUSE)
+
+            v=rd(s,"rtrv-patch:::1:;")
+
+            if f"{a},{b}" not in v and f"{b},{a}" not in v: s.close(); return True,None
+
+            print(f"  Retry {i}/{MAX_TRIES}...")
+
+        s.close(); return False,"Still present"
+
+    except Exception as e: return False,str(e)
+
+
+
+def watcher():
+
+    while True:
+
+        time.sleep(30); now=datetime.utcnow()
+
+        with lock:
+
+            exp=[k for k,v in patch_timers.items() if datetime.fromisoformat(v["expires"])<=now]
+
+        for key in exp:
+
+            try:
+
+                a,b=map(int,key.split("-"))
+
+                ok,err=dl_patch(a,b)
+
+                print(f"\n{Y}[AUTO-UNPATCH]{X} {a}<->{b}: {'OK' if ok else err}")
+
+            except Exception as e: print(f"\n{R}[ERROR]{X} {key}: {e}")
+
+            with lock: patch_timers.pop(key,None); save()
+
+
+
+def clr(): os.system("clear")
+
+def hdr():
+
+    print(B+C+"="*50)
+
+    print("  Switch 1 Polatis - Patch Manager")
+
+    print(D+f"  {SWITCH_IP} | {TOTAL_PORTS} ports | TL1"+X)
+
+    print(B+C+"="*50+X); print()
+
+def err(m): print(f"\n{R}ERROR:{X} {m}")
+
+def ok(m): print(f"\n{G}OK:{X} {m}")
+
+def wait(): input(f"\n{D}Press Enter...{X}")
+
+
+
+def show_ports():
+
+    clr(); hdr(); print(B+"All Ports"+X); print()
+
+    print("  Fetching...",end="",flush=True)
+
+    patches,e=get_patches()
+
+    if patches is None: err(e); wait(); return
+
+    pm={}
+
+    for a,b in patches: pm[a]=b; pm[b]=a
+
+    now=datetime.utcnow()
+
+    print(f"\r  {G}OK{X} - {len(patches)} patches\n")
+
+    print(f"  {G}###{X}=Patched  {Y}###{X}=Expiring  {D}###{X}=Free\n")
+
+    for rs in range(1,TOTAL_PORTS+1,10):
+
+        row=""
+
+        for p in range(rs,min(rs+10,TOTAL_PORTS+1)):
+
+            if p in pm:
+
+                k=tkey(p,pm[p])
+
+                with lock: ti=patch_timers.get(k)
+
+                if ti:
+
+                    secs=max(0,int((datetime.fromisoformat(ti["expires"])-now).total_seconds()))
+
+                    col=Y if secs<1800 else G
+
+                else: col=G
+
+                row+=f"  {col}{p:>3}{X}"
+
+            else: row+=f"  {D}{p:>3}{X}"
+
+        print(row)
+
+    print(); print(B+"Active Patches:"+X)         print(row)
+
+    print(); print(B+"Active Patches:"+X)
+
+    if not patches: print(f"  {D}None{X}")
+
+    else:
+
+        print(f"  {'A':<6} {'B':<6} {'Label':<18} Time"); print("  "+"-"*40)
+
+        seen=set()
+
+        for a,b in patches:
+
+            k=tkey(a,b)
+
+            if k in seen: continue
+
+            seen.add(k)
+
+            with lock: ti=patch_timers.get(k)
+
+            if ti:
+
+                secs=max(0,int((datetime.fromisoformat(ti["expires"])-now).total_seconds()))
+
+                ts=fmt(secs); lb=ti.get("label","")
+
+            else: ts=D+"no timer"+X; lb=""
+
+            print(f"  {a:<6} {b:<6} {lb:<18} {ts}")
+
+    wait()
+
+
+
+def make_patch():
+
+    clr(); hdr(); print(B+"Create Patch"+X); print()
+
+    print("  Fetching...",end="",flush=True)
+
+    patches,e=get_patches()
+
+    if patches is None: err(e); wait(); return
+
+    ps=set()
+
+    for a,b in patches: ps.add(a); ps.add(b)
+
+    up=[p for p in range(1,TOTAL_PORTS+1) if p not in ps]
+
+    print(f"\r  {G}OK{X} - {len(up)} free ports\n")
+
+    print(f"  Free: {D}{', '.join(str(p) for p in up)}{X}\n")
+
+    try:
+
+        a=int(input("  Port A: "))
+
+        b=int(input("  Port B: "))
+
+    except: err("Invalid"); wait(); return
+
+    if a==b: err("Same port"); wait(); return
+
+    if a in ps or b in ps: err("Already patched"); wait(); return
+
+    if not(1<=a<=TOTAL_PORTS) or not(1<=b<=TOTAL_PORTS): err(f"Ports 1-{TOTAL_PORTS}"); wait(); return
+
+    try: d=int(input("  Duration (minutes): "))
+
+    except: err("Invalid"); wait(); return
+
+    lb=input("  Label (optional): ").strip()
+
+    print(f"\n  Creating {a}<->{b} for {d} min...")
+
+    ok_,e=mk_patch(a,b)
+
+    if not ok_: err(e); wait(); return
+
+    exp=(datetime.utcnow()+timedelta(minutes=d)).isoformat()
+
+    k=tkey(a,b)
+
+    with lock: patch_timers[k]={"expires":exp,"label":lb}; save()
+
+    ok(f"Port {a}<->{b} patched for {d} min!"); wait()
+
+
+
+def remove_patch():
+
+    clr(); hdr(); print(B+"Remove Patch"+X); print()
+
+    print("  Fetching...",end="",flush=True)
+
+    patches,e=get_patches()
+
+    if patches is None: err(e); wait(); return
+
+    print(f"\r  {G}OK{X}\n")
+
+    if not patches: print(f"  {D}No patches{X}"); wait(); return
+
+    now=datetime.utcnow(); seen=set(); num=[]
+
+    for a,b in patches:
+
+        k=tkey(a,b)
+
+        if k in seen: continue
+
+        seen.add(k); num.append((a,b))
+
+    print(f"  {'#':<4} {'A':<6} {'B':<6} {'Label':<18} Time"); print("  "+"-"*45)
+
+    for i,(a,b) in enumerate(num,1):
+
+        k=tkey(a,b)
+
+        with lock: ti=patch_timers.get(k)
+
+        if ti:        with lock: ti=patch_timers.get(k)
+
+        if ti:
+
+            secs=max(0,int((datetime.fromisoformat(ti["expires"])-now).total_seconds()))
+
+            ts=fmt(secs); lb=ti.get("label","")
+
+        else: ts=D+"no timer"+X; lb=""
+
+        print(f"  {i:<4} {a:<6} {b:<6} {lb:<18} {ts}")
+
+    print()
+
+    try: c=int(input("  Number to remove (0=cancel): "))
+
+    except: return
+
+    if c==0: return
+
+    if not(1<=c<=len(num)): err("Invalid"); wait(); return
+
+    a,b=num[c-1]
+
+    if input(f"  Remove {a}<->{b}? (yes/no): ").strip().lower()!="yes": return
+
+    print(f"  Removing {a}<->{b}...")
+
+    ok_,e=dl_patch(a,b)
+
+    if not ok_: err(e); wait(); return
+
+    k=tkey(a,b)
+
+    with lock: patch_timers.pop(k,None); save()
+
+    ok(f"{a}<->{b} removed!"); wait()
+
+
+
+def power_mon():
+
+    clr(); hdr(); print(B+"Power Monitor"+X); print()
+
+    print("  Pulling readings...",end="",flush=True)
+
+    readings,e=get_power()
+
+    if readings is None: err(e); wait(); return
+
+    print(f"\r  {G}OK{X} - {len(readings)} readings\n")
+
+    print(f"  {D}Strong>-10  Medium-10to-30  Weak<-30{X}\n")
+
+    for rs in range(1,TOTAL_PORTS+1,8):
+
+        row=""
+
+        for p in range(rs,min(rs+8,TOTAL_PORTS+1)):
+
+            pw=readings.get(p)
+
+            if pw is not None:
+
+                col=G if pw>-10 else(Y if pw>-30 else R)
+
+                row+=f"  P{p:<3}{col}{pw:>7.2f}dB{X}"
+
+            else: row+=f"  P{p:<3}{D}N/A   {X}"
+
+        print(row)
+
+    wait()
+
+
+
+def main():
+
+    load()
+
+    threading.Thread(target=watcher,daemon=True).start()
+
+    while True:
+
+        clr(); hdr()
+
+        patches,_=get_patches()
+
+        if patches is not None:
+
+            pc=len(set(min(a,b) for a,b in patches))
+
+            print(f"  {G}Patched:{X} {pc*2:<4}  {D}Unpatched:{X} {TOTAL_PORTS-pc*2:<4}")
+
+        else: print(f"  {R}Cannot reach Switch 1{X}")
+
+        print()
+
+        print(f"  {B}1{X}) Show all ports")
+
+        print(f"  {B}2{X}) Create patch")
+
+        print(f"  {B}3{X}) Remove patch")
+
+        print(f"  {B}4{X}) Power monitor")
+
+        print(f"  {B}5{X}) Exit"); print()
+
+        c=input("  Choice (1-5): ").strip()
+
+        if c=="1": show_ports()
+
+        elif c=="2": make_patch()
+
+        elif c=="3": remove_patch()
+
+        elif c=="4": power_mon()
+
+        elif c=="5": clr(); print("\n  Goodbye!\n"); break
+
+
+
+if __name__=="__main__": main()
+
