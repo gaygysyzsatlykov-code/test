@@ -1,16 +1,7 @@
-[lab@sandbox polatis_switch]$ mv t5_configuration t5_configuration.py
-[lab@sandbox polatis_switch]$ python3 t5_configuration.py --dry-run --only NE-77 --power-up-only
-
-=== NE-77 (10.252.254.77:3082)  [POWER-UP ONLY] ===
-  [  1] login                      ACT-USER::CISCO15:_::otbu+1;
-  [  2] set trunk wavelength       ED-OTU4C2::VFAC-2-6-11-1:_:::FREQ=1530.33;
-  [  3] trunk port IS (power up)   ED-OTU4C2::VFAC-2-6-11-1:_::::IS;   tolerate=SAIN
-  [  4] client port IS (power up)  ED-100GIGE::AGGR-2-6-7-1:_::::IS;   tolerate=SAIN
-  [  5] logout                     CANC-USER::CISCO15:_;
-
-=== SUMMARY ===
-  NE-77: OK
+[lab@sandbox polatis_switch]$ python3 t5_configuration --dry-run --only NE-77 --power-up-only
+python3: can't open file '/home/lab/polatis_switch/t5_configuration': [Errno 2] No such file or directory
 [lab@sandbox polatis_switch]$ python3 t5_configuration --dry-run --only NE-77 --power-up-only
 python3: can't open file '/home/lab/polatis_switch/t5_configuration': [Errno 2] No such file or directory
 [lab@sandbox polatis_switch]$ 
+
 
