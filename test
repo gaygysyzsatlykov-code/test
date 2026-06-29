@@ -1,26 +1,15 @@
-[lab@sandbox polatis_switch]$ python3 t5_configuration.py --dry-run --only NE-77 --power-up-only
+[lab@sandbox polatis_switch]$ python3 t5_configuration.py
 
-=== NE-77 (10.252.254.77:3082)  [POWER-UP ONLY] ===
-  [  1] login                      ACT-USER::CISCO15:_::otbu+1;
-  [  2] set trunk wavelength       ED-OTU4C2::VFAC-2-6-11-1:_:::FREQ=1530.33;
-  [  3] trunk port IS (power up)   ED-OTU4C2::VFAC-2-6-11-1:_::::IS;   tolerate=SAIN
-  [  4] client port IS (power up)  ED-100GIGE::AGGR-2-6-7-1:_::::IS;   tolerate=SAIN
-  [  5] logout                     CANC-USER::CISCO15:_;
-
-=== SUMMARY ===
-  NE-77: OK
-[lab@sandbox polatis_switch]$ python3 t5_configuration.py --only NE-77 --power-up-only
-
-=== NE-77 (10.252.254.77:3082)  [POWER-UP ONLY] ===
+=== NE-77 (10.252.254.77:3082) ===
   connect 10.252.254.77:3082
   -> login
     >>> ACT-USER::CISCO15:1::otbu+1;
-    oln01enwdcola 2026-06-29 20:59:54
+    oln01enwdcola 2026-06-29 21:21:34
 M  1 COMPLD
-   "CISCO15:2026-06-29 20-54-43,2026-06-29 20-54-36,0"
+   "CISCO15:2026-06-29 21-20-46,2026-06-29 21-20-46,0"
 ;
 
-   oln01enwdcola 2026-06-29 20:59:54
+   oln01enwdcola 2026-06-29 21:21:34
 A  0 REPT EVT SESSION
    "oln01enwdcola:NO,"
    /* TL1 Agent Copyright (c) 1999-2007 Cisco Systems, Inc.
@@ -33,25 +22,82 @@ and security reasons. By proceeding, you consent to this monitoring.
       User CISCO15 logged in from 10.252.254.207 */
 ;
      OK (COMPLD)
+  -> equip card 400G-XP-LC
+    >>> RTRV-EQPT::SLOT-2-6:2;
+    oln01enwdcola 2026-06-29 21:21:35
+M  2 COMPLD
+   "SLOT-2-6:400G-XP-LC,EQUIP,,ACT:CARDNAME=400G-XP,ALARMSUPPRESS=N,ACTUALCARDNAME=400G-XP-LC,ALARMPROFILENAME=\"Inherited\",LASTINTERFACECHNG=\"25days/23hours/22mins/32secs\":IS-NR,"
+;
+     already present -> skip
+  -> equip client PPM port 7
+    >>> RTRV-EQPT::APPM-2-6-7:3;
+    oln01enwdcola 2026-06-29 21:21:35
+M  3 COMPLD
+   "APPM-2-6-7:PPM-1,EQUIP,,NA:CARDNAME=QSFP-100G-LR4-1302.35NM,ALARMSUPPRESS=N,ACTUALCARDNAME=PPM-1,ALARMPROFILENAME=\"Inherited\",LASTINTERFACECHNG=\"5days/18hours/57mins/6secs\":IS-NR,"
+;
+     already present -> skip
+  -> equip trunk PPM port 11
+    >>> RTRV-EQPT::PPM-2-6-11:4;
+    oln01enwdcola 2026-06-29 21:21:35
+M  4 COMPLD
+   "PPM-2-6-11:PPM-1,EQUIP,,NA:CARDNAME=CFP2,ALARMSUPPRESS=N,ACTUALCARDNAME=PPM-1,ALARMPROFILENAME=\"Inherited\",LASTINTERFACECHNG=\"5days/18hours/57mins/6secs\":IS-NR,"
+;
+     already present -> skip
+  -> set operating mode (MXP)
+    >>> RTRV-OPMODE::SLOT-2-6:5;
+    oln01enwdcola 2026-06-29 21:21:36
+M  5 COMPLD
+   "SLOT-2-6,OPMODE=MXP,TRUNKOPMODE=11/M-200G&12/M-200G,CLIENTSETS=11/S1/OPM-100G&11/S2/OPM-100G&12/S3/OPM-100G&12/S4/OPM-100G,"
+;
+     already present -> skip
   -> set trunk wavelength
-    >>> ED-OTU4C2::VFAC-2-6-11-1:2:::FREQ=1530.33;
-    oln01enwdcola 2026-06-29 20:59:55
-M  2 DENY
+    >>> ED-OTU4C2::VFAC-2-6-11-1:6:::FREQ=1530.33;
+    oln01enwdcola 2026-06-29 21:21:36
+M  6 DENY
    SROF
    VFAC-2-6-11-1
    /* Cannot Change Configuration With Port Having Connection */
 ;
-  !! NE-77: TL1 failure -> DENIED: set trunk wavelength (code=SROF)
-       resp: oln01enwdcola 2026-06-29 20:59:55
-M  2 DENY
-   SROF
-   VFAC-2-6-11-1
-   /* Cannot Change Configuration With Port Having Connection */
+     tolerated (SROF)
+  -> trunk port IS (power up)
+    >>> ED-OTU4C2::VFAC-2-6-11-1:7::::IS;
+    oln01enwdcola 2026-06-29 21:21:37
+M  7 COMPLD
 ;
+     OK (COMPLD)
+  -> provision client 100GIGE
+    >>> RTRV-100GIGE::AGGR-2-6-7-1:8;
+    oln01enwdcola 2026-06-29 21:21:37
+M  8 COMPLD
+   "AGGR-2-6-7-1:,,WORK,ACT:MTU=1548,MACADDR=00-00-00-00-00-00,SOAK=32,NUMOFLANES=4,,ALARMSUPPRESS=N,IFINDEX=1006078,OPTICSINDEX=1006008,ALARMPROFILENAME=\"Inherited\",LLDPSTATUS=NO:IS-NR,"
+;
+     already present -> skip
+  -> client port IS (power up)
+    >>> ED-100GIGE::AGGR-2-6-7-1:9::::IS;
+    oln01enwdcola 2026-06-29 21:21:38
+M  9 COMPLD
+;
+     OK (COMPLD)
+  -> logout
+    >>> CANC-USER::CISCO15:10;
+    oln01enwdcola 2026-06-29 21:21:38
+M  10 COMPLD
+;
+     OK (COMPLD)
+  === NE-77: COMPLETE ===
   disconnected from NE-77
 
-!! ABORTING RUN: NE-77 failed; skipping remaining node(s).
+=== NE-74 (10.252.254.74:3082) ===
+  connect 10.252.254.74:3082
+  -> login
+    >>> ACT-USER::CISCO15:11::otbu+1;
+  !! NE-74: TL1 failure -> timeout waiting for ctag=11
+
+  disconnected from NE-74
+
+!! ABORTING RUN: NE-74 failed; skipping remaining node(s).
 
 === SUMMARY ===
-  NE-77: FAILED
+  NE-77: OK
+  NE-74: FAILED
 [lab@sandbox polatis_switch]$ 
