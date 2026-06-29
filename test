@@ -1,36 +1,23 @@
-#Add TACACS+
-#TACACS+ Configuration
-config admin aaa-server-group tacplus {TACACS Group Name, e.g., Group-1}
-config admin aaa-servers tacplus add TAC1 {IPv6 TACACS server address} timeout 3 single-connect enabled
-yes
-{TACACS Secret}
-{TACACS Secret}
-config admin aaa-servers tacplus add TAC2 {IPv6 TACACS server address} timeout 3 single-connect enabled
-yes
-{TACACS Secret}
-{TACACS Secret}
-config admin aaa-servers tacplus modify TAC1 source-address {Node IP}
-config admin aaa-servers tacplus modify TAC2 source-address {Node IP}
-config admin aaa-server-group tacplus {TACACS Group Name, e.g., Group-1} add server TAC1 priority 14
-config admin aaa-server-group tacplus {TACACS Group Name, e.g., Group-1} add server TAC2 priority 14
-config admin authorization tacplus add server-group {TACACS Group Name, e.g., Group-1}
-config admin authentication tacplus add server-group {TACACS Group Name, e.g., Group-1}
-config admin authorization tacplus type priv-lvl
-#
-#Configure Syslog
-config admin syslog 1 ip {IPv6 Address}
-config admin syslog 1 port {514}
-config admin syslog 1 priority debug
-config admin syslog 1 status enabled
-config admin syslog 2 ip {IPv6 Address}
-config admin syslog 2 port {514}
-config admin syslog 2 priority debug
-config admin syslog 2 status enabled
-#
-#Change acl_default Action
-config acl_default defaultRxAction block
-yes
-#
-#Add SNMP community string
-config snmpserver community {level} {string}
-#
+TL1 commands :
+ENT-EQPT::SLOT-${CHASSIS-ID}-${SLOT-ID}:101::400G-XP-LC;
+ENT-EQPT::APPM-${CHASSIS-ID}-${SLOT-ID}-7:102::PPM-1;
+ENT-EQPT::APPM-${CHASSIS-ID}-${SLOT-ID}-8:103::PPM-1;
+ENT-EQPT::APPM-${CHASSIS-ID}-${SLOT-ID}-9:104::PPM-1;
+ENT-EQPT::APPM-${CHASSIS-ID}-${SLOT-ID}-10:105::PPM-1;
+
+ENT-EQPT::PPM-${CHASSIS-ID}-${SLOT-ID}-11:106::PPM-1;
+ENT-EQPT::PPM-${CHASSIS-ID}-${SLOT-ID}-12:107::PPM-1;
+
+ENT-OPMODE::SLOT-${CHASSIS-ID}-${SLOT-ID}:108:::OPMODE=MXP,TRUNKOPMODE=11/M-200G&12/M-200G,CLIENTSETS=11/S1/OPM-100G&11/S2/OPM-100G&12/S3/OPM-100G&12/S4/OPM-100G;
+
+ed-OTU4C2::VFAC-6-11-1:1::::IS;
+ed-OTU4C2::VFAC-6-11-1:1:::FREQ=1534.25,;
+ed-OTU4C2::VFAC-6-11-1:1:::CMDMDE=FRCD:OOS,DSBLD;
+ed-OTU4C2::VFAC-8-11-1:1::::IS;
+ed-OTU4C2::VFAC-8-11-1:1:::FREQ=1534.25,;
+ed-OTU4C2::VFAC-8-11-1:1:::CMDMDE=FRCD:OOS,DSBLD;
+ENT-100GIGE::AGGR-3-3-7-1:1:::NUMOFLANES=4;
+ENT-100GIGE::AGGR-2-3-7-1:1:::NUMOFLANES=4;
+
+
+https://www.cisco.com/c/dam/en/us/td/docs/optical/15000r10_0/tl1/ncs/command/guide/Source/NCS_2k_TL1_Guide.pdf
