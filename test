@@ -1,6 +1,12 @@
-[lab@sandbox polatis_switch]$ ls -la t5_configuration*
--rw-r--r--. 1 lab lab 12543 Jun 29 14:49 t5_configuration.py
-[lab@sandbox polatis_switch]$ wc -l t5_configuration*
-336 t5_configuration.py
-[lab@sandbox polatis_switch]$ 
+[lab@sandbox polatis_switch]$ python3 t5_configuration.py --dry-run --only NE-77 --power-up-only
 
+=== NE-77 (10.252.254.77:3082)  [POWER-UP ONLY] ===
+  [  1] login                      ACT-USER::CISCO15:_::otbu+1;
+  [  2] set trunk wavelength       ED-OTU4C2::VFAC-2-6-11-1:_:::FREQ=1530.33;
+  [  3] trunk port IS (power up)   ED-OTU4C2::VFAC-2-6-11-1:_::::IS;   tolerate=SAIN
+  [  4] client port IS (power up)  ED-100GIGE::AGGR-2-6-7-1:_::::IS;   tolerate=SAIN
+  [  5] logout                     CANC-USER::CISCO15:_;
+
+=== SUMMARY ===
+  NE-77: OK
+[lab@sandbox polatis_switch]$ 
