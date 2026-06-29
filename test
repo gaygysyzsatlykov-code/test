@@ -9,4 +9,49 @@
 
 === SUMMARY ===
   NE-77: OK
+[lab@sandbox polatis_switch]$ python3 t5_configuration.py --only NE-77 --power-up-only
+
+=== NE-77 (10.252.254.77:3082)  [POWER-UP ONLY] ===
+  connect 10.252.254.77:3082
+  -> login
+    >>> ACT-USER::CISCO15:1::otbu+1;
+    oln01enwdcola 2026-06-29 20:59:54
+M  1 COMPLD
+   "CISCO15:2026-06-29 20-54-43,2026-06-29 20-54-36,0"
+;
+
+   oln01enwdcola 2026-06-29 20:59:54
+A  0 REPT EVT SESSION
+   "oln01enwdcola:NO,"
+   /* TL1 Agent Copyright (c) 1999-2007 Cisco Systems, Inc.
+
+WARNING
+This system is restricted to authorized users for business purposes. Unauthorized
+access is a violation of the law. This service may be monitored for administrative
+and security reasons. By proceeding, you consent to this monitoring.
+
+      User CISCO15 logged in from 10.252.254.207 */
+;
+     OK (COMPLD)
+  -> set trunk wavelength
+    >>> ED-OTU4C2::VFAC-2-6-11-1:2:::FREQ=1530.33;
+    oln01enwdcola 2026-06-29 20:59:55
+M  2 DENY
+   SROF
+   VFAC-2-6-11-1
+   /* Cannot Change Configuration With Port Having Connection */
+;
+  !! NE-77: TL1 failure -> DENIED: set trunk wavelength (code=SROF)
+       resp: oln01enwdcola 2026-06-29 20:59:55
+M  2 DENY
+   SROF
+   VFAC-2-6-11-1
+   /* Cannot Change Configuration With Port Having Connection */
+;
+  disconnected from NE-77
+
+!! ABORTING RUN: NE-77 failed; skipping remaining node(s).
+
+=== SUMMARY ===
+  NE-77: FAILED
 [lab@sandbox polatis_switch]$ 
