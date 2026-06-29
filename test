@@ -1,7 +1,6 @@
-[lab@sandbox polatis_switch]$ python3 t5_configuration --dry-run --only NE-77 --power-up-only
-python3: can't open file '/home/lab/polatis_switch/t5_configuration': [Errno 2] No such file or directory
-[lab@sandbox polatis_switch]$ python3 t5_configuration --dry-run --only NE-77 --power-up-only
-python3: can't open file '/home/lab/polatis_switch/t5_configuration': [Errno 2] No such file or directory
+[lab@sandbox polatis_switch]$ ls -la t5_configuration*
+-rw-r--r--. 1 lab lab 12543 Jun 29 14:49 t5_configuration.py
+[lab@sandbox polatis_switch]$ wc -l t5_configuration*
+336 t5_configuration.py
 [lab@sandbox polatis_switch]$ 
-
 
