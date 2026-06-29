@@ -1,15 +1,28 @@
+[lab@sandbox polatis_switch]$ python3 t5_configuration.py --dry-run --only NE-77 --teardown
+
+=== NE-77 (10.252.254.77:3082)  [TEARDOWN] ===
+  [  1] login                      ACT-USER::CISCO15:_::otbu+1;
+  [  2] client port OOS (force)    ED-100GIGE::AGGR-2-6-7-1:_:::CMDMDE=FRCD:OOS,DSBLD;   tolerate=SAIN,IIAC
+  [  3] trunk port 11 OOS (force)  ED-OTU4C2::VFAC-2-6-11-1:_:::CMDMDE=FRCD:OOS,DSBLD;   tolerate=SAIN,IIAC
+  [  4] trunk port 12 OOS (force)  ED-OTU4C2::VFAC-2-6-12-1:_:::CMDMDE=FRCD:OOS,DSBLD;   tolerate=SAIN,IIAC
+  [  5] delete operating mode      CHECK: RTRV-OPMODE::SLOT-2-6:_;  (skip if absent)
+  [  6] delete operating mode      DLT-OPMODE::SLOT-2-6:_;
+  [  7] logout                     CANC-USER::CISCO15:_;
+
+=== SUMMARY ===
+  NE-77: OK
 [lab@sandbox polatis_switch]$ python3 t5_configuration.py
 
 === NE-77 (10.252.254.77:3082) ===
   connect 10.252.254.77:3082
   -> login
     >>> ACT-USER::CISCO15:1::otbu+1;
-    oln01enwdcola 2026-06-29 22:00:28
+    oln01enwdcola 2026-06-29 22:04:33
 M  1 COMPLD
-   "CISCO15:2026-06-29 21-54-43,2026-06-29 21-54-36,0"
+   "CISCO15:2026-06-29 22-00-28,2026-06-29 21-54-43,0"
 ;
 
-   oln01enwdcola 2026-06-29 22:00:28
+   oln01enwdcola 2026-06-29 22:04:33
 A  0 REPT EVT SESSION
    "oln01enwdcola:NO,"
    /* TL1 Agent Copyright (c) 1999-2007 Cisco Systems, Inc.
@@ -24,35 +37,35 @@ and security reasons. By proceeding, you consent to this monitoring.
      OK (COMPLD)
   -> equip card 400G-XP-LC
     >>> RTRV-EQPT::SLOT-2-6:2;
-    oln01enwdcola 2026-06-29 22:00:28
+    oln01enwdcola 2026-06-29 22:04:33
 M  2 COMPLD
    "SLOT-2-6:400G-XP-LC,EQUIP,,ACT:CARDNAME=400G-XP,ALARMSUPPRESS=N,ACTUALCARDNAME=400G-XP-LC,ALARMPROFILENAME=\"Inherited\",LASTINTERFACECHNG=\"25days/23hours/22mins/32secs\":IS-NR,"
 ;
      already present -> skip
   -> equip client PPM port 7
     >>> RTRV-EQPT::APPM-2-6-7:3;
-    oln01enwdcola 2026-06-29 22:00:28
+    oln01enwdcola 2026-06-29 22:04:34
 M  3 COMPLD
    "APPM-2-6-7:PPM-1,EQUIP,,NA:CARDNAME=QSFP-100G-LR4-1302.35NM,ALARMSUPPRESS=N,ACTUALCARDNAME=PPM-1,ALARMPROFILENAME=\"Inherited\",LASTINTERFACECHNG=\"5days/18hours/57mins/6secs\":IS-NR,"
 ;
      already present -> skip
   -> equip trunk PPM port 11
     >>> RTRV-EQPT::PPM-2-6-11:4;
-    oln01enwdcola 2026-06-29 22:00:29
+    oln01enwdcola 2026-06-29 22:04:34
 M  4 COMPLD
    "PPM-2-6-11:PPM-1,EQUIP,,NA:CARDNAME=CFP2,ALARMSUPPRESS=N,ACTUALCARDNAME=PPM-1,ALARMPROFILENAME=\"Inherited\",LASTINTERFACECHNG=\"5days/18hours/57mins/6secs\":IS-NR,"
 ;
      already present -> skip
   -> set operating mode (MXP)
     >>> RTRV-OPMODE::SLOT-2-6:5;
-    oln01enwdcola 2026-06-29 22:00:29
+    oln01enwdcola 2026-06-29 22:04:35
 M  5 COMPLD
    "SLOT-2-6,OPMODE=MXP,TRUNKOPMODE=11/M-200G&12/M-200G,CLIENTSETS=11/S1/OPM-100G&11/S2/OPM-100G&12/S3/OPM-100G&12/S4/OPM-100G,"
 ;
      already present -> skip
   -> set trunk wavelength
     >>> ED-OTU4C2::VFAC-2-6-11-1:6:::FREQ=1530.33;
-    oln01enwdcola 2026-06-29 22:00:30
+    oln01enwdcola 2026-06-29 22:04:35
 M  6 DENY
    SROF
    VFAC-2-6-11-1
@@ -61,26 +74,26 @@ M  6 DENY
      tolerated (SROF)
   -> trunk port IS (power up)
     >>> ED-OTU4C2::VFAC-2-6-11-1:7::::IS;
-    oln01enwdcola 2026-06-29 22:00:31
+    oln01enwdcola 2026-06-29 22:04:36
 M  7 COMPLD
 ;
      OK (COMPLD)
   -> provision client 100GIGE
     >>> RTRV-100GIGE::AGGR-2-6-7-1:8;
-    oln01enwdcola 2026-06-29 22:00:31
+    oln01enwdcola 2026-06-29 22:04:36
 M  8 COMPLD
    "AGGR-2-6-7-1:,,WORK,ACT:MTU=1548,MACADDR=00-00-00-00-00-00,SOAK=32,NUMOFLANES=4,,ALARMSUPPRESS=N,IFINDEX=1006078,OPTICSINDEX=1006008,ALARMPROFILENAME=\"Inherited\",LLDPSTATUS=NO:IS-NR,"
 ;
      already present -> skip
   -> client port IS (power up)
     >>> ED-100GIGE::AGGR-2-6-7-1:9::::IS;
-    oln01enwdcola 2026-06-29 22:00:32
+    oln01enwdcola 2026-06-29 22:04:36
 M  9 COMPLD
 ;
      OK (COMPLD)
   -> logout
     >>> CANC-USER::CISCO15:10;
-    oln01enwdcola 2026-06-29 22:00:32
+    oln01enwdcola 2026-06-29 22:04:37
 M  10 COMPLD
 ;
      OK (COMPLD)
