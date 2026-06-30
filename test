@@ -1,90 +1,71 @@
-[lab@sandbox polatis_switch]$ python3 t5_configuration.py --only NE-77 --teardown
 
-=== NE-77 (10.252.254.77:3082)  [TEARDOWN] ===
-  connect 10.252.254.77:3082
-  -> login
-    >>> ACT-USER::CISCO15:1::otbu+1;
-    oln01enwdcola 2026-06-29 22:07:25
-M  1 COMPLD
-   "CISCO15:2026-06-29 22-05-40,2026-06-29 22-05-39,0"
+
+   oln01enwdcola 2026-06-30 01:46:24
+M  2 DENY
+   PLNA
+   /* Login Not Active */
 ;
+DLT-OPMODE::SLOT-2-6:3:::TRUNKOPMODE=11/M-200G&12/M-200G;
 
-   oln01enwdcola 2026-06-29 22:07:25
-A  0 REPT EVT SESSION
-   "oln01enwdcola:NO,"
-   /* TL1 Agent Copyright (c) 1999-2007 Cisco Systems, Inc.
 
-WARNING
-This system is restricted to authorized users for business purposes. Unauthorized
-access is a violation of the law. This service may be monitored for administrative
-and security reasons. By proceeding, you consent to this monitoring.
-
-      User CISCO15 logged in from 10.252.254.207 */
+   oln01enwdcola 2026-06-30 01:46:33
+M  3 DENY
+   PLNA
+   /* Login Not Active */
 ;
-     OK (COMPLD)
-  -> client port OOS (force)
-    >>> ED-100GIGE::AGGR-2-6-7-1:2:::CMDMDE=FRCD:OOS,DSBLD;
-    oln01enwdcola 2026-06-29 22:07:25
-M  2 COMPLD
-;
+RTRV-OPMODE::SLOT-2-6:4;
 
 
-   oln01enwdcola 2026-06-29 22:07:25
-A  3654.3640 REPT ALM OCH
-   "ACHAN-2-6-7-1:CL,SIGLOSS,SA,06-29,22-07-25,NEND,RCV:\"Signal Loss on Data Interface\",400G-XP-LC"
+   oln01enwdcola 2026-06-30 01:46:45
+M  4 DENY
+   PLNA
+   /* Login Not Active */
 ;
-
-   oln01enwdcola 2026-06-29 22:07:25
-A  3655.3641 REPT EVT OCH
-   "ACHAN-2-6-7-1:SQUELCHED,CL,06-29,22-07-25,NEND,NA,,,:\"Equipment Squelched\",400G-XP-LC"
-;
-     OK (COMPLD)
-  -> trunk port 11 OOS (force)
-    >>> ED-OTU4C2::VFAC-2-6-11-1:3:::CMDMDE=FRCD:OOS,DSBLD;
-    oln01enwdcola 2026-06-29 22:07:26
-M  3 COMPLD
-;
+DLT-OPMODE::SLOT-2-6:5:::TRUNKOPMODE=11/M-200G;
 
 
-   oln01enwdcola 2026-06-29 22:07:26
-A  3656.3656 REPT EVT OCH
-   "PCHAN-2-3-RX:TRAIL-SIGNAL-FAIL,SC,06-29,22-07-26,NEND,NA,,,:\"Trail Signal Fail\",MD-48-ODD"
+   oln01enwdcola 2026-06-30 01:46:52
+M  5 DENY
+   PLNA
+   /* Login Not Active */
 ;
-     OK (COMPLD)
-  -> trunk port 12 OOS (force)
-    >>> ED-OTU4C2::VFAC-2-6-12-1:4:::CMDMDE=FRCD:OOS,DSBLD;
-    oln01enwdcola 2026-06-29 22:07:27
-M  4 COMPLD
-;
+DLT-OPMODE::SLOT-2-6:6:::TRUNKOPMODE=12/M-200G
+
+Connection closed by foreign host.
+[lab@sandbox ~]$ telnet 10.252.254.77 3082
+Trying 10.252.254.77...
+Connected to 10.252.254.77.
+Escape character is '^]'.
+DLT-OPMODE::SLOT-2-6:6:::TRUNKOPMODE=12/M-200G;
 
 
-   oln01enwdcola 2026-06-29 22:07:27
-A  3657.3657 REPT EVT OCH
-   "PCHAN-6-3-RX:TRAIL-SIGNAL-FAIL,SC,06-29,22-07-27,NEND,NA,,,:\"Trail Signal Fail\",MD-48-ODD"
-;
-     OK (COMPLD)
-  -> delete operating mode
-    >>> RTRV-OPMODE::SLOT-2-6:5;
-    oln01enwdcola 2026-06-29 22:07:29
-M  5 COMPLD
-   "SLOT-2-6,OPMODE=MXP,TRUNKOPMODE=11/M-200G&12/M-200G,CLIENTSETS=11/S1/OPM-100G&11/S2/OPM-100G&12/S3/OPM-100G&12/S4/OPM-100G,"
-;
-    >>> DLT-OPMODE::SLOT-2-6:6;
-    oln01enwdcola 2026-06-29 22:07:32
+   oln01enwdcola 2026-06-30 01:49:06
 M  6 DENY
-   IPMS
-   /* Invalid Payload Block. Missing Mandatory Field. */
+   PLNA
+   /* Login Not Active */
 ;
-  !! NE-77: TL1 failure -> DENIED: delete operating mode (code=IPMS)
-       resp: oln01enwdcola 2026-06-29 22:07:32
+DLT-OPMODE::SLOT-2-6:6:::TRUNKOPMODE=12/M-200G:;
+
+
+   oln01enwdcola 2026-06-30 01:49:11
 M  6 DENY
-   IPMS
-   /* Invalid Payload Block. Missing Mandatory Field. */
+   PLNA
+   /* Login Not Active */
 ;
-  disconnected from NE-77
+DLT-OPMODE::SLOT-2-6:5:::TRUNKOPMODE=11/M-200G:;
 
-!! ABORTING RUN: NE-77 failed; skipping remaining node(s).
 
-=== SUMMARY ===
-  NE-77: FAILED
-[lab@sandbox polatis_switch]$ 
+   oln01enwdcola 2026-06-30 01:49:19
+M  5 DENY
+   PLNA
+   /* Login Not Active */
+;
+DLT-OPMODE::SLOT-2-6:5:::TRUNKOPMODE=11/M-200G::;
+
+
+   oln01enwdcola 2026-06-30 01:49:25
+M  5 DENY
+   PLNA
+   /* Login Not Active */
+;
+
