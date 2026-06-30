@@ -1,15 +1,440 @@
-RTRV-100GIGE::AGGR-2-6-7-1:1;
+  VERIFY PASS (state = OOS)
+  -> VERIFY client deleted
+    >>> RTRV-100GIGE::AGGR-2-6-7-1:34;
+    oln01enwdcola 2026-06-30 03:32:19
+M  34 DENY
+   SDBE
+   AGGR-2-6-7-1
+   /* Facility Is Not Provisioned */
+;
+     VERIFY PASS (state = absent (DENY))
+  -> logout
+    >>> CANC-USER::CISCO15:35;
+    oln01enwdcola 2026-06-30 03:32:20
+M  35 COMPLD
+;
+     OK (COMPLD)
+  === 10.252.254.77: COMPLETE & VERIFIED ===
+  disconnected from 10.252.254.77
+
+  >>> 10.252.254.77: SUCCESS (verified)
+
+  ============================================================
+  10.252.254.77  SLOT-2-6  400G-XP-LC  [IS-NR]
+  opmode: MXP (trunks 11/M-200G&12/M-200G)
+  ------------------------------------------------------------
+  TRUNK ports:
+    11  CFP2    VFAC-2-6-11-1   OOS-MA,DSBLD  OPR=-40.0
+    12  CFP2    VFAC-2-6-12-1   OOS-MA,DSBLD  OPR=-40.0
+  CLIENT ports:
+     5  QSFP-4X10G-LR-1307.50NM   IS-NR         -                       [other rate]
+     7  QSFP-100G-LR4-1302.35NM   IS-NR         -                       [available (100G)]
+     8  (empty)                   OOS-AUMA,UAS  -                       [empty (no optic)]
+     9  (empty)                   OOS-AUMA,UAS  -                       [empty (no optic)]
+  ============================================================
+
+  Actions (target: client port 7 / trunk port 11):
+    1) Build up      (provision + power up, verified)
+    2) Tear down     (OOS + delete client, verified)
+    3) Power-up only (set freq + bring IS)
+    4) Refresh inventory
+    5) Back to node list
+    6) Quit
+  Select action: 1
+  Build up 10.252.254.77 client 7? [y/N]: y
+
+=== 10.252.254.77 (10.252.254.77:3082) ===
+  connect 10.252.254.77:3082
+  -> login
+    >>> ACT-USER::CISCO15:43::otbu+1;
+    oln01enwdcola 2026-06-30 03:33:36
+M  43 COMPLD
+   "CISCO15:2026-06-30 03-32-33,2026-06-30 03-32-20,0"
+;
+
+   oln01enwdcola 2026-06-30 03:33:36
+A  0 REPT EVT SESSION
+   "oln01enwdcola:NO,"
+   /* TL1 Agent Copyright (c) 1999-2007 Cisco Systems, Inc.
+
+WARNING
+This system is restricted to authorized users for business purposes. Unauthorized
+access is a violation of the law. This service may be monitored for administrative
+and security reasons. By proceeding, you consent to this monitoring.
+
+      User CISCO15 logged in from 10.252.254.207 */
+;
+     OK (COMPLD)
+  -> equip card 400G-XP-LC
+    >>> RTRV-EQPT::SLOT-2-6:44;
+    oln01enwdcola 2026-06-30 03:33:37
+M  44 COMPLD
+   "SLOT-2-6:400G-XP-LC,EQUIP,,STBY:CARDNAME=400G-XP,ALARMSUPPRESS=N,ACTUALCARDNAME=400G-XP-LC,ALARMPROFILENAME=\"Inherited\",LASTINTERFACECHNG=\"26days/6hours/40mins/46secs\":IS-NR,"
+;
+     already present -> skip
+  -> equip client PPM port 7
+    >>> RTRV-EQPT::APPM-2-6-7:45;
+    oln01enwdcola 2026-06-30 03:33:37
+M  45 COMPLD
+   "APPM-2-6-7:PPM-1,EQUIP,,NA:CARDNAME=QSFP-100G-LR4-1302.35NM,ALARMSUPPRESS=N,ACTUALCARDNAME=PPM-1,ALARMPROFILENAME=\"Inherited\",LASTINTERFACECHNG=\"5days/18hours/57mins/6secs\":IS-NR,"
+;
+     already present -> skip
+  -> equip trunk PPM port 11
+    >>> RTRV-EQPT::PPM-2-6-11:46;
+    oln01enwdcola 2026-06-30 03:33:37
+M  46 COMPLD
+   "PPM-2-6-11:PPM-1,EQUIP,,NA:CARDNAME=CFP2,ALARMSUPPRESS=N,ACTUALCARDNAME=PPM-1,ALARMPROFILENAME=\"Inherited\",LASTINTERFACECHNG=\"5days/18hours/57mins/6secs\":IS-NR,"
+;
+     already present -> skip
+  -> set operating mode (MXP)
+    >>> RTRV-OPMODE::SLOT-2-6:47;
+    oln01enwdcola 2026-06-30 03:33:38
+M  47 COMPLD
+   "SLOT-2-6,OPMODE=MXP,TRUNKOPMODE=11/M-200G&12/M-200G,CLIENTSETS=11/S1/OPM-100G&11/S2/OPM-100G&12/S3/OPM-100G&12/S4/OPM-100G,"
+;
+     already present -> skip
+  -> set trunk wavelength
+    >>> ED-OTU4C2::VFAC-2-6-11-1:48:::FREQ=1530.33;
+    oln01enwdcola 2026-06-30 03:33:38
+M  48 DENY
+   SROF
+   VFAC-2-6-11-1
+   /* Cannot Change Configuration With Port Having Connection */
+;
+     tolerated (SROF)
+  -> trunk port IS (power up)
+    >>> ED-OTU4C2::VFAC-2-6-11-1:49::::IS;
+    oln01enwdcola 2026-06-30 03:33:39
+M  49 COMPLD
+;
 
 
-   oln01enwdcola 2026-06-30 03:36:57
-M  1 COMPLD
+   oln01enwdcola 2026-06-30 03:33:39
+A  3700.3695 REPT EVT OCH
+   "PCHAN-2-3-RX:TRAIL-SIGNAL-FAIL,CL,06-30,03-33-39,NEND,NA,,,:\"Trail Signal Fail\",MD-48-ODD"
+;
+
+   oln01enwdcola 2026-06-30 03:33:39
+*  3701.3701 REPT ALM OTS
+   "PLINE-14-9-RX:MN,LOS-P,SA,06-30,03-32-24,NEND,NA:\"Incoming Payload Signal Absent\",MF-MPO-16LC"
+;
+     OK (COMPLD)
+  -> provision client 100GIGE
+    >>> RTRV-100GIGE::AGGR-2-6-7-1:50;
+    oln01enwdcola 2026-06-30 03:33:40
+M  50 DENY
+   SDBE
+   AGGR-2-6-7-1
+   /* Facility Is Not Provisioned */
+;
+    >>> ENT-100GIGE::AGGR-2-6-7-1:51:::NUMOFLANES=4;
+    oln01enwdcola 2026-06-30 03:33:40
+M  51 COMPLD
+;
+     OK (COMPLD)
+  -> client port IS (power up)
+    >>> ED-100GIGE::AGGR-2-6-7-1:52::::IS;
+    oln01enwdcola 2026-06-30 03:33:44
+M  52 COMPLD
+;
+     OK (COMPLD)
+  -> VERIFY trunk in-service
+    >>> RTRV-OTU4C2::VFAC-2-6-11-1:53;
+    oln01enwdcola 2026-06-30 03:33:44
+M  53 COMPLD
+   "VFAC-2-6-11-1:,,WORK,STBY:GCC=N,DWRAP=Y,FEC=SD-25-DE-OFF,OSFBER=1E-5,OSDBER=1E-7,FREQ=1530.33,LOSSB=DWDM,SOAK=32,,SQUELCHMODE=ODU-AIS,PORTMODE=DWDM-TRANS-AIS,,ALARMSUPPRESS=N,SQUELCHHOLDOFFTIMER=0,IFINDEX=100607C,GRIDLESS=DISABLE,CDLOW=-10000.0,CDHIGH=50000.0,VOATXPOWER=-0.50,TXLASERSHUTDN=N,ALARMPROFILENAME=\"Inherited\":IS-NR,"
+;
+     VERIFY PASS (state = IS-)
+  -> VERIFY client in-service
+    >>> RTRV-100GIGE::AGGR-2-6-7-1:54;
+    oln01enwdcola 2026-06-30 03:33:49
+M  54 COMPLD
+   "AGGR-2-6-7-1:,,WORK,STBY:MTU=1548,MACADDR=00-00-00-00-00-00,SOAK=32,NUMOFLANES=4,,ALARMSUPPRESS=N,IFINDEX=1006078,OPTICSINDEX=1006008,ALARMPROFILENAME=\"Inherited\",LLDPSTATUS=NO:IS-NR,"
+;
+     VERIFY PASS (state = IS-)
+  -> logout
+    >>> CANC-USER::CISCO15:55;
+    oln01enwdcola 2026-06-30 03:33:49
+M  55 COMPLD
+;
+     OK (COMPLD)
+  === 10.252.254.77: COMPLETE & VERIFIED ===
+  disconnected from 10.252.254.77
+
+  >>> 10.252.254.77: SUCCESS (verified)
+
+  ============================================================
+  10.252.254.77  SLOT-2-6  400G-XP-LC  [IS-NR]
+  opmode: MXP (trunks 11/M-200G&12/M-200G)
+  ------------------------------------------------------------
+  TRUNK ports:
+    11  CFP2    VFAC-2-6-11-1   OOS-AU,FLT  OPR=-40.0
+    12  CFP2    VFAC-2-6-12-1   OOS-MA,DSBLD  OPR=-40.0
+  CLIENT ports:
+     5  QSFP-4X10G-LR-1307.50NM   IS-NR         -                       [other rate]
+     7  QSFP-100G-LR4-1302.35NM   IS-NR         AGGR-2-6-7-1 IS-NR      [PROVISIONED]
+     8  (empty)                   OOS-AUMA,UAS  -                       [empty (no optic)]
+     9  (empty)                   OOS-AUMA,UAS  -                       [empty (no optic)]
+  ============================================================
+
+  Actions (target: client port 7 / trunk port 11):
+    1) Build up      (provision + power up, verified)
+    2) Tear down     (OOS + delete client, verified)
+    3) Power-up only (set freq + bring IS)
+    4) Refresh inventory
+    5) Back to node list
+    6) Quit
+  Select action: 1
+  Build up 10.252.254.77 client 7? [y/N]: y
+
+=== 10.252.254.77 (10.252.254.77:3082) ===
+  connect 10.252.254.77:3082
+  -> login
+    >>> ACT-USER::CISCO15:63::otbu+1;
+    oln01enwdcola 2026-06-30 03:36:41
+M  63 COMPLD
+   "CISCO15:2026-06-30 03-36-09,2026-06-30 03-35-46,0"
+;
+
+   oln01enwdcola 2026-06-30 03:36:41
+A  0 REPT EVT SESSION
+   "oln01enwdcola:NO,"
+   /* TL1 Agent Copyright (c) 1999-2007 Cisco Systems, Inc.
+
+WARNING
+This system is restricted to authorized users for business purposes. Unauthorized
+access is a violation of the law. This service may be monitored for administrative
+and security reasons. By proceeding, you consent to this monitoring.
+
+      User CISCO15 logged in from 10.252.254.207 */
+;
+     OK (COMPLD)
+  -> equip card 400G-XP-LC
+    >>> RTRV-EQPT::SLOT-2-6:64;
+    oln01enwdcola 2026-06-30 03:36:41
+M  64 COMPLD
+   "SLOT-2-6:400G-XP-LC,EQUIP,,ACT:CARDNAME=400G-XP,ALARMSUPPRESS=N,ACTUALCARDNAME=400G-XP-LC,ALARMPROFILENAME=\"Inherited\",LASTINTERFACECHNG=\"26days/6hours/43mins/28secs\":IS-NR,"
+;
+     already present -> skip
+  -> equip client PPM port 7
+    >>> RTRV-EQPT::APPM-2-6-7:65;
+    oln01enwdcola 2026-06-30 03:36:41
+M  65 COMPLD
+   "APPM-2-6-7:PPM-1,EQUIP,,NA:CARDNAME=QSFP-100G-LR4-1302.35NM,ALARMSUPPRESS=N,ACTUALCARDNAME=PPM-1,ALARMPROFILENAME=\"Inherited\",LASTINTERFACECHNG=\"5days/18hours/57mins/6secs\":IS-NR,"
+;
+     already present -> skip
+  -> equip trunk PPM port 11
+    >>> RTRV-EQPT::PPM-2-6-11:66;
+    oln01enwdcola 2026-06-30 03:36:42
+M  66 COMPLD
+   "PPM-2-6-11:PPM-1,EQUIP,,NA:CARDNAME=CFP2,ALARMSUPPRESS=N,ACTUALCARDNAME=PPM-1,ALARMPROFILENAME=\"Inherited\",LASTINTERFACECHNG=\"5days/18hours/57mins/6secs\":IS-NR,"
+;
+     already present -> skip
+  -> set operating mode (MXP)
+    >>> RTRV-OPMODE::SLOT-2-6:67;
+    oln01enwdcola 2026-06-30 03:36:42
+M  67 COMPLD
+   "SLOT-2-6,OPMODE=MXP,TRUNKOPMODE=11/M-200G&12/M-200G,CLIENTSETS=11/S1/OPM-100G&11/S2/OPM-100G&12/S3/OPM-100G&12/S4/OPM-100G,"
+;
+     already present -> skip
+  -> set trunk wavelength
+    >>> ED-OTU4C2::VFAC-2-6-11-1:68:::FREQ=1530.33;
+    oln01enwdcola 2026-06-30 03:36:43
+M  68 DENY
+   SROF
+   VFAC-2-6-11-1
+   /* Cannot Change Configuration With Port Having Connection */
+;
+     tolerated (SROF)
+  -> trunk port IS (power up)
+    >>> ED-OTU4C2::VFAC-2-6-11-1:69::::IS;
+    oln01enwdcola 2026-06-30 03:36:43
+M  69 COMPLD
+;
+     OK (COMPLD)
+  -> provision client 100GIGE
+    >>> RTRV-100GIGE::AGGR-2-6-7-1:70;
+    oln01enwdcola 2026-06-30 03:36:44
+M  70 COMPLD
    "AGGR-2-6-7-1:,,WORK,ACT:MTU=1548,MACADDR=00-00-00-00-00-00,SOAK=32,NUMOFLANES=4,,ALARMSUPPRESS=N,IFINDEX=1006078,OPTICSINDEX=1006008,ALARMPROFILENAME=\"Inherited\",LLDPSTATUS=NO:IS-NR,"
 ;
-RTRV-100GIGE::AGGR-2-6-7-1:2;
-
-
-   oln01enwdcola 2026-06-30 03:37:03
-M  2 COMPLD
+     already present -> skip
+  -> client port IS (power up)
+    >>> ED-100GIGE::AGGR-2-6-7-1:71::::IS;
+    oln01enwdcola 2026-06-30 03:36:44
+M  71 COMPLD
+;
+     OK (COMPLD)
+  -> VERIFY trunk in-service
+    >>> RTRV-OTU4C2::VFAC-2-6-11-1:72;
+    oln01enwdcola 2026-06-30 03:36:44
+M  72 COMPLD
+   "VFAC-2-6-11-1:,,WORK,ACT:GCC=N,DWRAP=Y,FEC=SD-25-DE-OFF,OSFBER=1E-5,OSDBER=1E-7,LBCL=4.0,OPT=0.6,OPR=-18.1,FREQ=1530.33,LOSSB=DWDM,SOAK=32,,SQUELCHMODE=ODU-AIS,PORTMODE=DWDM-TRANS-AIS,,ALARMSUPPRESS=N,SQUELCHHOLDOFFTIMER=0,IFINDEX=100607C,GRIDLESS=DISABLE,CDLOW=-10000.0,CDHIGH=50000.0,VOATXPOWER=-0.50,TXLASERSHUTDN=N,OSNR=21.2,PMD=2.0,CD=4780,SOPMD=124,PDL=0.0,ALARMPROFILENAME=\"Inherited\":IS-NR,"
+;
+     VERIFY PASS (state = IS-)
+  -> VERIFY client in-service
+    >>> RTRV-100GIGE::AGGR-2-6-7-1:73;
+    oln01enwdcola 2026-06-30 03:36:45
+M  73 COMPLD
    "AGGR-2-6-7-1:,,WORK,ACT:MTU=1548,MACADDR=00-00-00-00-00-00,SOAK=32,NUMOFLANES=4,,ALARMSUPPRESS=N,IFINDEX=1006078,OPTICSINDEX=1006008,ALARMPROFILENAME=\"Inherited\",LLDPSTATUS=NO:IS-NR,"
 ;
+     VERIFY PASS (state = IS-)
+  -> logout
+    >>> CANC-USER::CISCO15:74;
+    oln01enwdcola 2026-06-30 03:36:45
+M  74 COMPLD
+;
+     OK (COMPLD)
+  === 10.252.254.77: COMPLETE & VERIFIED ===
+  disconnected from 10.252.254.77
 
+  >>> 10.252.254.77: SUCCESS (verified)
+
+  ============================================================
+  10.252.254.77  SLOT-2-6  400G-XP-LC  [IS-NR]
+  opmode: MXP (trunks 11/M-200G&12/M-200G)
+  ------------------------------------------------------------
+  TRUNK ports:
+    11  CFP2    VFAC-2-6-11-1   IS-NR  OPR=-18.1
+    12  CFP2    VFAC-2-6-12-1   OOS-MA,DSBLD  OPR=-40.0
+  CLIENT ports:
+     5  QSFP-4X10G-LR-1307.50NM   IS-NR         -                       [other rate]
+     7  QSFP-100G-LR4-1302.35NM   IS-NR         AGGR-2-6-7-1 IS-NR      [PROVISIONED]
+     8  (empty)                   OOS-AUMA,UAS  -                       [empty (no optic)]
+     9  (empty)                   OOS-AUMA,UAS  -                       [empty (no optic)]
+  ============================================================
+
+  Actions (target: client port 7 / trunk port 11):
+    1) Build up      (provision + power up, verified)
+    2) Tear down     (OOS + delete client, verified)
+    3) Power-up only (set freq + bring IS)
+    4) Refresh inventory
+    5) Back to node list
+    6) Quit
+  Select action: 1
+  Build up 10.252.254.77 client 7? [y/N]: y
+
+=== 10.252.254.77 (10.252.254.77:3082) ===
+  connect 10.252.254.77:3082
+  -> login
+    >>> ACT-USER::CISCO15:82::otbu+1;
+    oln01enwdcola 2026-06-30 03:41:11
+M  82 COMPLD
+   "CISCO15:2026-06-30 03-39-39,2026-06-30 03-39-36,0"
+;
+
+   oln01enwdcola 2026-06-30 03:41:11
+A  0 REPT EVT SESSION
+   "oln01enwdcola:NO,"
+   /* TL1 Agent Copyright (c) 1999-2007 Cisco Systems, Inc.
+
+WARNING
+This system is restricted to authorized users for business purposes. Unauthorized
+access is a violation of the law. This service may be monitored for administrative
+and security reasons. By proceeding, you consent to this monitoring.
+
+      User CISCO15 logged in from 10.252.254.207 */
+;
+     OK (COMPLD)
+  -> equip card 400G-XP-LC
+    >>> RTRV-EQPT::SLOT-2-6:83;
+    oln01enwdcola 2026-06-30 03:41:11
+M  83 COMPLD
+   "SLOT-2-6:400G-XP-LC,EQUIP,,ACT:CARDNAME=400G-XP,ALARMSUPPRESS=N,ACTUALCARDNAME=400G-XP-LC,ALARMPROFILENAME=\"Inherited\",LASTINTERFACECHNG=\"26days/6hours/43mins/28secs\":IS-NR,"
+;
+     already present -> skip
+  -> equip client PPM port 7
+    >>> RTRV-EQPT::APPM-2-6-7:84;
+    oln01enwdcola 2026-06-30 03:41:12
+M  84 COMPLD
+   "APPM-2-6-7:PPM-1,EQUIP,,NA:CARDNAME=QSFP-100G-LR4-1302.35NM,ALARMSUPPRESS=N,ACTUALCARDNAME=PPM-1,ALARMPROFILENAME=\"Inherited\",LASTINTERFACECHNG=\"5days/18hours/57mins/6secs\":IS-NR,"
+;
+     already present -> skip
+  -> equip trunk PPM port 11
+    >>> RTRV-EQPT::PPM-2-6-11:85;
+    oln01enwdcola 2026-06-30 03:41:12
+M  85 COMPLD
+   "PPM-2-6-11:PPM-1,EQUIP,,NA:CARDNAME=CFP2,ALARMSUPPRESS=N,ACTUALCARDNAME=PPM-1,ALARMPROFILENAME=\"Inherited\",LASTINTERFACECHNG=\"5days/18hours/57mins/6secs\":IS-NR,"
+;
+     already present -> skip
+  -> set operating mode (MXP)
+    >>> RTRV-OPMODE::SLOT-2-6:86;
+    oln01enwdcola 2026-06-30 03:41:13
+M  86 COMPLD
+   "SLOT-2-6,OPMODE=MXP,TRUNKOPMODE=11/M-200G&12/M-200G,CLIENTSETS=11/S1/OPM-100G&11/S2/OPM-100G&12/S3/OPM-100G&12/S4/OPM-100G,"
+;
+     already present -> skip
+  -> set trunk wavelength
+    >>> ED-OTU4C2::VFAC-2-6-11-1:87:::FREQ=1530.33;
+    oln01enwdcola 2026-06-30 03:41:13
+M  87 DENY
+   SROF
+   VFAC-2-6-11-1
+   /* Cannot Change Configuration With Port Having Connection */
+;
+     tolerated (SROF)
+  -> trunk port IS (power up)
+    >>> ED-OTU4C2::VFAC-2-6-11-1:88::::IS;
+    oln01enwdcola 2026-06-30 03:41:13
+M  88 COMPLD
+;
+     OK (COMPLD)
+  -> provision client 100GIGE
+    >>> RTRV-100GIGE::AGGR-2-6-7-1:89;
+    oln01enwdcola 2026-06-30 03:41:14
+M  89 COMPLD
+   "AGGR-2-6-7-1:,,WORK,ACT:MTU=1548,MACADDR=00-00-00-00-00-00,SOAK=32,NUMOFLANES=4,,ALARMSUPPRESS=N,IFINDEX=1006078,OPTICSINDEX=1006008,ALARMPROFILENAME=\"Inherited\",LLDPSTATUS=NO:IS-NR,"
+;
+     already present -> skip
+  -> client port IS (power up)
+    >>> ED-100GIGE::AGGR-2-6-7-1:90::::IS;
+    oln01enwdcola 2026-06-30 03:41:14
+M  90 COMPLD
+;
+     OK (COMPLD)
+  -> VERIFY trunk in-service
+    >>> RTRV-OTU4C2::VFAC-2-6-11-1:91;
+    oln01enwdcola 2026-06-30 03:41:15
+M  91 COMPLD
+   "VFAC-2-6-11-1:,,WORK,ACT:GCC=N,DWRAP=Y,FEC=SD-25-DE-OFF,OSFBER=1E-5,OSDBER=1E-7,LBCL=4.0,OPT=0.5,OPR=-18.3,FREQ=1530.33,LOSSB=DWDM,SOAK=32,,SQUELCHMODE=ODU-AIS,PORTMODE=DWDM-TRANS-AIS,,ALARMSUPPRESS=N,SQUELCHHOLDOFFTIMER=0,IFINDEX=100607C,GRIDLESS=DISABLE,CDLOW=-10000.0,CDHIGH=50000.0,VOATXPOWER=-0.50,TXLASERSHUTDN=N,OSNR=21.0,PMD=2.0,CD=4781,SOPMD=162,PDL=0.0,ALARMPROFILENAME=\"Inherited\":IS-NR,"
+;
+     VERIFY PASS (state = IS-)
+  -> VERIFY client in-service
+    >>> RTRV-100GIGE::AGGR-2-6-7-1:92;
+    oln01enwdcola 2026-06-30 03:41:15
+M  92 COMPLD
+   "AGGR-2-6-7-1:,,WORK,ACT:MTU=1548,MACADDR=00-00-00-00-00-00,SOAK=32,NUMOFLANES=4,,ALARMSUPPRESS=N,IFINDEX=1006078,OPTICSINDEX=1006008,ALARMPROFILENAME=\"Inherited\",LLDPSTATUS=NO:IS-NR,"
+;
+     VERIFY PASS (state = IS-)
+  -> logout
+    >>> CANC-USER::CISCO15:93;
+    oln01enwdcola 2026-06-30 03:41:16
+M  93 COMPLD
+;
+     OK (COMPLD)
+  === 10.252.254.77: COMPLETE & VERIFIED ===
+  disconnected from 10.252.254.77
+
+  >>> 10.252.254.77: SUCCESS (verified)
+
+  ============================================================
+  10.252.254.77  SLOT-2-6  400G-XP-LC  [IS-NR]
+  opmode: MXP (trunks 11/M-200G&12/M-200G)
+  ------------------------------------------------------------
+  TRUNK ports:
+    11  CFP2    VFAC-2-6-11-1   IS-NR  OPR=-18.4
+    12  CFP2    VFAC-2-6-12-1   OOS-MA,DSBLD  OPR=-40.0
+  CLIENT ports:
+     5  QSFP-4X10G-LR-1307.50NM   IS-NR         -                       [other rate]
+     7  QSFP-100G-LR4-1302.35NM   IS-NR         AGGR-2-6-7-1 IS-NR      [PROVISIONED]
+     8  (empty)                   OOS-AUMA,UAS  -                       [empty (no optic)]
+     9  (empty)                   OOS-AUMA,UAS  -                       [empty (no optic)]
+  ============================================================
+
+  Actions (target: client port 7 / trunk port 11):
+    1) Build up      (provision + power up, verified)
+    2) Tear down     (OOS + delete client, verified)
+    3) Power-up only (set freq + bring IS)
+    4) Refresh inventory
+    5) Back to node list
+    6) Quit
