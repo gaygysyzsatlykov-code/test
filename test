@@ -1,47 +1,25 @@
-RTRV-OPMODE::SLOT-2-6:4;
+DLT-OPMODE::SLOT-2-6:10:::TRUNKPORT=11;
 
 
-   oln01enwdcola 2026-06-30 01:51:43
-M  4 COMPLD
-   "SLOT-2-6,OPMODE=MXP,TRUNKOPMODE=11/M-200G&12/M-200G,CLIENTSETS=11/S1/OPM-100G&11/S2/OPM-100G&12/S3/OPM-100G&12/S4/OPM-100G,"
+   oln01enwdcola 2026-06-30 01:57:50
+M  10 DENY
+   IPMS
+   /* Invalid Payload Block. Missing Mandatory Field. */
 ;
-DLT-OPMODE::SLOT-2-6:5:::TRUNKOPMODE=11&12;
+DLT-OPMODE::SLOT-2-6:11:::TRUNKPORT=11&12;
 
 
-   oln01enwdcola 2026-06-30 01:54:46
-M  5 DENY
-   IPEX
-   /* Invalid Payload Block. Extra Parameters. */
+   oln01enwdcola 2026-06-30 01:57:58
+M  11 DENY
+   IIFM
+   /* Invalid Payload Block. Invalid Data Format. */
 ;
-DLT-OPMODE::SLOT-2-6:6:::TRUNKOPMODE=11;
+DLT-OPMODE::SLOT-2-6:12:::OPMODE=MXP;
 
 
-   oln01enwdcola 2026-06-30 01:54:55
-M  6 DENY
-   IPEX
-   /* Invalid Payload Block. Extra Parameters. */
-;
-DLT-OPMODE::SLOT-2-6:7:::TRUNKOPMODE=12;
-
-
-   oln01enwdcola 2026-06-30 01:55:03
-M  7 DENY
-   IPEX
-   /* Invalid Payload Block. Extra Parameters. */
-;
-DLT-OPMODE::SLOT-2-6:8:::TRUNKOPMODE=11/M-200G;
-
-
-   oln01enwdcola 2026-06-30 01:55:09
-M  8 DENY
-   IPEX
-   /* Invalid Payload Block. Extra Parameters. */
-;
-RTRV-OPMODE::SLOT-2-6:9;
-
-
-   oln01enwdcola 2026-06-30 01:55:14
-M  9 COMPLD
-   "SLOT-2-6,OPMODE=MXP,TRUNKOPMODE=11/M-200G&12/M-200G,CLIENTSETS=11/S1/OPM-100G&11/S2/OPM-100G&12/S3/OPM-100G&12/S4/OPM-100G,"
+   oln01enwdcola 2026-06-30 01:58:04
+M  12 DENY
+   SNVS
+   /* Cross Connect Exists */
 ;
 
