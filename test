@@ -1,25 +1,56 @@
-DLT-OPMODE::SLOT-2-6:10:::TRUNKPORT=11;
+RTRV-CRS-ODU::ALL:20;
 
 
-   oln01enwdcola 2026-06-30 01:57:50
-M  10 DENY
+   oln01enwdcola 2026-06-30 02:01:22
+M  20 COMPLD
+;
+RTRV-CRS-ODU::SLOT-2-6:21;
+
+
+   oln01enwdcola 2026-06-30 02:01:27
+M  21 DENY
+   INUP
+   /* Missing mandatory field */
+;
+
+
+RTRV-CRS-ODU4::ALL:22;
+
+
+   oln01enwdcola 2026-06-30 02:01:32
+M  22 DENY
+   IICM
+   /* Input, Invalid MOD2 */
+;
+RTRV-CRS-ODU::VFAC-2-6-11-1:23;
+
+
+   oln01enwdcola 2026-06-30 02:01:37
+M  23 DENY
+   INUP
+   /* Missing mandatory field */
+;
+DLT-CRS-ODU::<the-AID-it-shows>:24;
+
+
+   oln01enwdcola 2026-06-30 02:01:43
+M  24 DENY
    IPMS
-   /* Invalid Payload Block. Missing Mandatory Field. */
+   /* Invalid AID Block. Missing Mandatory Field. */
 ;
-DLT-OPMODE::SLOT-2-6:11:::TRUNKPORT=11&12;
+DLT-OPMODE::SLOT-2-6:25:::OPMODE=MXP;
 
 
-   oln01enwdcola 2026-06-30 01:57:58
-M  11 DENY
-   IIFM
-   /* Invalid Payload Block. Invalid Data Format. */
-;
-DLT-OPMODE::SLOT-2-6:12:::OPMODE=MXP;
-
-
-   oln01enwdcola 2026-06-30 01:58:04
-M  12 DENY
+   oln01enwdcola 2026-06-30 02:01:48
+M  25 DENY
    SNVS
    /* Cross Connect Exists */
+;
+RTRV-OPMODE::SLOT-2-6:26;
+
+
+   oln01enwdcola 2026-06-30 02:01:54
+M  26 COMPLD
+   "SLOT-2-6,OPMODE=MXP,TRUNKOPMODE=11/M-200G&12/M-200G,CLIENTSETS=11/S1/OPM-100G&11/S2/OPM-100G&12/S3/OPM-100G&12/S4/OPM-100G,"
 ;
 
