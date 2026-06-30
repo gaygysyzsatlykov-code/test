@@ -1,71 +1,50 @@
 
+   oln01enwdcola 2026-06-30 01:51:22
+M  1 COMPLD
+   "CISCO15:2026-06-30 01-50-43,2026-06-30 01-50-43,0"
+;
 
-   oln01enwdcola 2026-06-30 01:46:24
-M  2 DENY
-   PLNA
-   /* Login Not Active */
+   oln01enwdcola 2026-06-30 01:51:22
+A  0 REPT EVT SESSION
+   "oln01enwdcola:NO,"
+   /* TL1 Agent Copyright (c) 1999-2007 Cisco Systems, Inc.
+
+WARNING
+This system is restricted to authorized users for business purposes. Unauthorized
+access is a violation of the law. This service may be monitored for administrative
+and security reasons. By proceeding, you consent to this monitoring.
+
+      User CISCO15 logged in from 10.252.254.207 */
+;
+DLT-100GIGE::AGGR-2-6-7-1:2;
+
+
+   oln01enwdcola 2026-06-30 01:51:29
+M  2 COMPLD
 ;
 DLT-OPMODE::SLOT-2-6:3:::TRUNKOPMODE=11/M-200G&12/M-200G;
 
 
-   oln01enwdcola 2026-06-30 01:46:33
+   oln01enwdcola 2026-06-30 01:51:35
 M  3 DENY
-   PLNA
-   /* Login Not Active */
+   IPEX
+   /* Invalid Payload Block. Extra Parameters. */
+;
+DLT-OPMODE::SLOT-2-6:3:::TRUNKOPMODE=11/M-200G&12/M-200G;
+
+
+   oln01enwdcola 2026-06-30 01:51:37
+M  3 DENY
+   IPEX
+   /* Invalid Payload Block. Extra Parameters. */
 ;
 RTRV-OPMODE::SLOT-2-6:4;
 
 
-   oln01enwdcola 2026-06-30 01:46:45
-M  4 DENY
-   PLNA
-   /* Login Not Active */
+   oln01enwdcola 2026-06-30 01:51:43
+M  4 COMPLD
+   "SLOT-2-6,OPMODE=MXP,TRUNKOPMODE=11/M-200G&12/M-200G,CLIENTSETS=11/S1/OPM-100G&11/S2/OPM-100G&12/S3/OPM-100G&12/S4/OPM-100G,"
 ;
-DLT-OPMODE::SLOT-2-6:5:::TRUNKOPMODE=11/M-200G;
 
 
-   oln01enwdcola 2026-06-30 01:46:52
-M  5 DENY
-   PLNA
-   /* Login Not Active */
-;
-DLT-OPMODE::SLOT-2-6:6:::TRUNKOPMODE=12/M-200G
-
-Connection closed by foreign host.
-[lab@sandbox ~]$ telnet 10.252.254.77 3082
-Trying 10.252.254.77...
-Connected to 10.252.254.77.
-Escape character is '^]'.
-DLT-OPMODE::SLOT-2-6:6:::TRUNKOPMODE=12/M-200G;
-
-
-   oln01enwdcola 2026-06-30 01:49:06
-M  6 DENY
-   PLNA
-   /* Login Not Active */
-;
-DLT-OPMODE::SLOT-2-6:6:::TRUNKOPMODE=12/M-200G:;
-
-
-   oln01enwdcola 2026-06-30 01:49:11
-M  6 DENY
-   PLNA
-   /* Login Not Active */
-;
-DLT-OPMODE::SLOT-2-6:5:::TRUNKOPMODE=11/M-200G:;
-
-
-   oln01enwdcola 2026-06-30 01:49:19
-M  5 DENY
-   PLNA
-   /* Login Not Active */
-;
-DLT-OPMODE::SLOT-2-6:5:::TRUNKOPMODE=11/M-200G::;
-
-
-   oln01enwdcola 2026-06-30 01:49:25
-M  5 DENY
-   PLNA
-   /* Login Not Active */
-;
 
