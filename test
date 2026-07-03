@@ -1,9 +1,3 @@
-Last login: Thu Jul  2 20:32:13 on ttys000
-P3378852@CHTRMACHRWHH3 ~ % ssh lab@10.252.254.207
-lab@10.252.254.207's password: 
-Activate the web console with: systemctl enable --now cockpit.socket
-
-Last login: Thu Jul  2 20:32:19 2026 from 10.54.46.29
 [lab@sandbox ~]$ telnet 10.252.254.77 3082
 Trying 10.252.254.77...
 Connected to 10.252.254.77.
@@ -11,12 +5,12 @@ Escape character is '^]'.
 ACT-USER::CISCO15:1::otbu+1;
 
 
-   oln01enwdcola 2026-07-03 02:34:42
+   oln01enwdcola 2026-07-03 02:39:55
 M  1 COMPLD
-   "CISCO15:2026-07-03 02-24-39,2026-07-03 02-24-36,0"
+   "CISCO15:2026-07-03 02-39-43,2026-07-03 02-39-36,0"
 ;
 
-   oln01enwdcola 2026-07-03 02:34:42
+   oln01enwdcola 2026-07-03 02:39:55
 A  0 REPT EVT SESSION
    "oln01enwdcola:NO,"
    /* TL1 Agent Copyright (c) 1999-2007 Cisco Systems, Inc.
@@ -28,55 +22,110 @@ and security reasons. By proceeding, you consent to this monitoring.
 
       User CISCO15 logged in from 10.252.254.207 */
 ;
-RTRV-100GIGE::AGGR-2-6-8-1:2;
+RTRV-100GIGE::AGGR-2-6-7-1:2;
 
 
-   oln01enwdcola 2026-07-03 02:35:05
-M  2 DENY
-   SDBE
-   AGGR-2-6-8-1
-   /* Facility Is Not Provisioned */
+   oln01enwdcola 2026-07-03 02:40:17
+M  2 COMPLD
+   "AGGR-2-6-7-1:,,WORK,ACT:MTU=1548,MACADDR=00-00-00-00-00-00,SOAK=32,NUMOFLANES=4,,ALARMSUPPRESS=N,IFINDEX=1006078,OPTICSINDEX=1006008,ALARMPROFILENAME=\"Inherited\",LLDPSTATUS=NO:IS-NR,"
 ;
-ENT-100GIGE::AGGR-2-6-8-1:3:::NUMOFLANES=4;
+ED-100GIGE::AGGR-2-6-7-1:3:::CMDMDE=FRCD:OOS,DSBLD;
 
 
-   oln01enwdcola 2026-07-03 02:35:14
-M  3 DENY
-   IDNV
-   AGGR-2-6-8-1
-   /* PPM Does Not Exist */
+   oln01enwdcola 2026-07-03 02:40:23
+M  3 COMPLD
 ;
-RTRV-100GIGE::AGGR-2-6-8-1:4;
 
 
-   oln01enwdcola 2026-07-03 02:35:20
-M  4 DENY
-   SDBE
-   AGGR-2-6-8-1
-   /* Facility Is Not Provisioned */
+   oln01enwdcola 2026-07-03 02:40:23
+A  3767.3706 REPT ALM OCH
+   "ACHAN-2-6-7-1:CL,SIGLOSS,SA,07-03,02-40-23,NEND,RCV:\"Signal Loss on Data Interface\",400G-XP-LC"
 ;
-DLT-100GIGE::AGGR-2-6-8-1:5;
 
-
-   oln01enwdcola 2026-07-03 02:35:25
-M  5 DENY
-   SDBE
-   AGGR-2-6-8-1
-   /* Facility Is Not Provisioned */
+   oln01enwdcola 2026-07-03 02:40:23
+A  3768.3707 REPT EVT OCH
+   "ACHAN-2-6-7-1:SQUELCHED,CL,07-03,02-40-23,NEND,NA,,,:\"Equipment Squelched\",400G-XP-LC"
 ;
-RTRV-100GIGE::AGGR-2-6-8-1:6;
+
+RTRV-100GIGE::AGGR-2-6-7-1:4;
 
 
-   oln01enwdcola 2026-07-03 02:35:29
+   oln01enwdcola 2026-07-03 02:40:35
+M  4 COMPLD
+   "AGGR-2-6-7-1:,,WORK,STBY:MTU=1548,MACADDR=00-00-00-00-00-00,SOAK=32,NUMOFLANES=4,,ALARMSUPPRESS=N,IFINDEX=1006078,OPTICSINDEX=1006008,ALARMPROFILENAME=\"Inherited\",LLDPSTATUS=NO:OOS-MA,DSBLD"
+;
+DLT-100GIGE::AGGR-2-6-7-1:5;
+
+
+   oln01enwdcola 2026-07-03 02:40:41
+M  5 COMPLD
+;
+RTRV-100GIGE::AGGR-2-6-7-1:6;
+
+
+   oln01enwdcola 2026-07-03 02:40:48
 M  6 DENY
    SDBE
-   AGGR-2-6-8-1
+   AGGR-2-6-7-1
    /* Facility Is Not Provisioned */
 ;
-CANC-USER::CISCO15:7;
 
 
-   oln01enwdcola 2026-07-03 02:35:35
+   oln01enwdcola 2026-07-03 02:40:50
+A  3769.3769 REPT EVT OTU4C2
+   "VFAC-2-6-11-1:T-SES-PM,TC,07-03,02-40-49,FEND,RCV,1,1,15-MIN:\"Performance Monitor Threshold Crossing Alert\",400G-XP-LC"
+;RTRV-EQPT::APPM-2-6-7:7;
+
+
+   oln01enwdcola 2026-07-03 02:40:58
 M  7 COMPLD
+   "APPM-2-6-7:PPM-1,EQUIP,,NA:CARDNAME=QSFP-100G-LR4-1302.35NM,ALARMSUPPRESS=N,ACTUALCARDNAME=PPM-1,ALARMPROFILENAME=\"Inherited\",LASTINTERFACECHNG=\"5days/18hours/57mins/6secs\":IS-NR,"
+;
+ENT-100GIGE::AGGR-2-6-7-1:8:::NUMOFLANES=4;
+
+
+   oln01enwdcola 2026-07-03 02:41:04
+M  8 COMPLD
+;
+RTRV-100GIGE::AGGR-2-6-7-1:9;
+
+
+   oln01enwdcola 2026-07-03 02:41:11
+M  9 COMPLD
+   "AGGR-2-6-7-1:,,WORK,STBY:MTU=1548,MACADDR=00-00-00-00-00-00,SOAK=32,NUMOFLANES=4,,ALARMSUPPRESS=N,IFINDEX=1006078,OPTICSINDEX=1006008,ALARMPROFILENAME=\"Inherited\",LLDPSTATUS=NO:OOS-MA,DSBLD"
+;
+ED-100GIGE::AGGR-2-6-7-1:10::::IS;
+
+
+   oln01enwdcola 2026-07-03 02:41:17
+M  10 COMPLD
+;
+RTRV-100GIGE::AGGR-2-6-7-1:11;
+
+
+   oln01enwdcola 2026-07-03 02:41:23
+M  11 COMPLD
+   "AGGR-2-6-7-1:,,WORK,STBY:MTU=1548,MACADDR=00-00-00-00-00-00,SOAK=32,NUMOFLANES=4,,ALARMSUPPRESS=N,IFINDEX=1006078,OPTICSINDEX=1006008,ALARMPROFILENAME=\"Inherited\",LLDPSTATUS=NO:IS-NR,"
+;
+
+
+   oln01enwdcola 2026-07-03 02:41:24
+A  3770.3770 REPT EVT 100GIGE
+   "AGGR-2-6-7-1:RMON-RESET,TC,07-03,02-41-24,NEND,NA,,,:\"RMON Histories And Alarms Reset Reboot\",400G-XP-LC"
+;
+
+   oln01enwdcola 2026-07-03 02:41:29
+** 3771.3771 REPT ALM OCH
+   "ACHAN-2-6-7-1:MJ,SIGLOSS,SA,07-03,02-41-27,NEND,RCV:\"Signal Loss on Data Interface\",400G-XP-LC"
+;
+
+   oln01enwdcola 2026-07-03 02:41:29
+A  3772.3772 REPT EVT OCH
+   "ACHAN-2-6-7-1:SQUELCHED,SC,07-03,02-41-27,NEND,NA,,,:\"Equipment Squelched\",400G-XP-LC"
+;CANC-USER::CISCO15:12; 
+
+
+   oln01enwdcola 2026-07-03 02:41:33
+M  12 COMPLD
 ;Connection closed by foreign host.
 [lab@sandbox ~]$ 
