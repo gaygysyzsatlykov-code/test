@@ -1,13 +1,8 @@
+[silver@test t5_automation]$ ls
+Python-3.9.18  Python-3.9.18.tgz  t5_wizard.py
 [silver@test t5_automation]$ python3 t5_wizard.py
-Traceback (most recent call last):
-  File "t5_wizard.py", line 20, in <module>
-    import t5_configuration as t5      # the engine file on the sandbox
-ModuleNotFoundError: No module named 't5_configuration'
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "t5_wizard.py", line 22, in <module>
-    import t5_provision as t5          # dev/repo name
-ModuleNotFoundError: No module named 't5_provision'
+  File "t5_wizard.py", line 26
+    from __future__ import annotations
+    ^
+SyntaxError: future feature annotations is not defined
 [silver@test t5_automation]$ 
