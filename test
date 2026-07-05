@@ -1,9 +1,23 @@
-RTRV-100GIGE::AGGR-2-6-7-1:110;
+  Pick a port number, 'g' guided build, 'r' refresh, 'b' back: g
 
+  Guided: provision a client service
+    1) client port 7 (rides trunk 11)  --  not provisioned
+  Which client port? (or 'q'): 3
+  invalid selection
 
-   oln01enwdcola 2026-07-05 20:00:30
-M  110 DENY
-   SDBE
-   AGGR-2-6-7-1
-   /* Facility Is Not Provisioned */
-;
+  ============================================================
+  SLOT-2-6  400G-XP-LC   opmode: MXP (trunks 11/M-200G&12/M-200G)
+  ------------------------------------------------------------
+    1) TRUNK  port 11  CFP2      VFAC-2-6-11-1   IS-NR  FREQ=1530.33
+    2) TRUNK  port 12  CFP2      VFAC-2-6-12-1   OOS-MA,DSBLD  FREQ=1530.33
+    3) CLIENT port 7   QSFP-100G-LR4-1302.35NM     AGGR-2-6-7-1  [available (build up)]  (trunk 11)
+    4) CLIENT port 8   (no optic)                  AGGR-2-6-8-1  [-- insert 100G optic --]  (trunk 11)
+    5) CLIENT port 9   (no optic)                  AGGR-2-6-9-1  [-- insert 100G optic --]  (trunk 12)
+    6) CLIENT port 10  (no optic)                  AGGR-2-6-10-1  [-- insert 100G optic --]  (trunk 12)
+  ============================================================
+
+  Pick a port number, 'g' guided build, 'r' refresh, 'b' back: 3
+
+  Port client 7 -- state: not provisioned
+    1) Build up (create 100GIGE + power up)
+  Select action (or 'q'): 
