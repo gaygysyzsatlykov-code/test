@@ -1,9 +1,9 @@
-  Guided: provision a client service
-    1) client port 7 (rides trunk 11)  --  not provisioned
-  Which client port? (or 'q'): 1
-  Step: trunk 11 already in service (FREQ=1530.33) -- skipping.
+RTRV-100GIGE::AGGR-2-6-7-1:120;
 
-  Plan (each step is applied AND verified before the next):
-    1. create 100GIGE facility on client 7
-    2. bring client 7 in service
-  proceed? [y/N]: 
+
+
+   oln01enwdcola 2026-07-05 20:09:36
+M  120 COMPLD
+   "AGGR-2-6-7-1:,,WORK,ACT:MTU=1548,MACADDR=00-00-00-00-00-00,SOAK=32,NUMOFLANES=4,,ALARMSUPPRESS=N,IFINDEX=1006078,OPTICSINDEX=1006008,ALARMPROFILENAME=\"Inherited\",LLDPSTATUS=NO:IS-NR,"
+;
+
