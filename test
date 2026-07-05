@@ -1,23 +1,100 @@
-  Pick a port number, 'g' guided build, 'r' refresh, 'b' back: g
+Last login: Sun Jul  5 13:55:14 on ttys002
+P3378852@CHTRMACHRWHH3 ~ % ssh lab@10.252.254.207   
+lab@10.252.254.207's password: 
+Activate the web console with: systemctl enable --now cockpit.socket
 
-  Guided: provision a client service
-    1) client port 7 (rides trunk 11)  --  not provisioned
-  Which client port? (or 'q'): 3
-  invalid selection
+Last login: Thu Jul  2 20:51:00 2026 from 10.54.46.29
+[lab@sandbox ~]$ telnet 10.252.254.77 3082
+Trying 10.252.254.77...
+Connected to 10.252.254.77.
+Escape character is '^]'.
+ACT-USER::CISCO15:100::otbu+1;
 
-  ============================================================
-  SLOT-2-6  400G-XP-LC   opmode: MXP (trunks 11/M-200G&12/M-200G)
-  ------------------------------------------------------------
-    1) TRUNK  port 11  CFP2      VFAC-2-6-11-1   IS-NR  FREQ=1530.33
-    2) TRUNK  port 12  CFP2      VFAC-2-6-12-1   OOS-MA,DSBLD  FREQ=1530.33
-    3) CLIENT port 7   QSFP-100G-LR4-1302.35NM     AGGR-2-6-7-1  [available (build up)]  (trunk 11)
-    4) CLIENT port 8   (no optic)                  AGGR-2-6-8-1  [-- insert 100G optic --]  (trunk 11)
-    5) CLIENT port 9   (no optic)                  AGGR-2-6-9-1  [-- insert 100G optic --]  (trunk 12)
-    6) CLIENT port 10  (no optic)                  AGGR-2-6-10-1  [-- insert 100G optic --]  (trunk 12)
-  ============================================================
 
-  Pick a port number, 'g' guided build, 'r' refresh, 'b' back: 3
+   oln01enwdcola 2026-07-05 19:56:49
+M  100 COMPLD
+   "CISCO15:2026-07-05 19-54-39,2026-07-05 19-54-36,0"
+;
 
-  Port client 7 -- state: not provisioned
-    1) Build up (create 100GIGE + power up)
-  Select action (or 'q'): 
+   oln01enwdcola 2026-07-05 19:56:49
+A  0 REPT EVT SESSION
+   "oln01enwdcola:NO,"
+   /* TL1 Agent Copyright (c) 1999-2007 Cisco Systems, Inc.
+
+WARNING
+This system is restricted to authorized users for business purposes. Unauthorized
+access is a violation of the law. This service may be monitored for administrative
+and security reasons. By proceeding, you consent to this monitoring.
+
+      User CISCO15 logged in from 10.252.254.207 */
+;
+RTRV-100GIGE::AGGR-2-6-7-1:101;
+
+
+   oln01enwdcola 2026-07-05 19:57:30
+M  101 COMPLD
+   "AGGR-2-6-7-1:,,WORK,ACT:MTU=1548,MACADDR=00-00-00-00-00-00,SOAK=32,NUMOFLANES=4,,ALARMSUPPRESS=N,IFINDEX=1006078,OPTICSINDEX=1006008,ALARMPROFILENAME=\"Inherited\",LLDPSTATUS=NO:IS-NR,"
+;
+RTRV-OTU4C2::VFAC-2-6-11-1:102;
+
+
+   oln01enwdcola 2026-07-05 19:57:38
+M  102 COMPLD
+   "VFAC-2-6-11-1:,,WORK,ACT:GCC=N,DWRAP=Y,FEC=SD-25-DE-OFF,OSFBER=1E-5,OSDBER=1E-7,LBCL=4.0,OPT=0.5,OPR=-18.1,FREQ=1530.33,LOSSB=DWDM,SOAK=32,,SQUELCHMODE=ODU-AIS,PORTMODE=DWDM-TRANS-AIS,,ALARMSUPPRESS=N,SQUELCHHOLDOFFTIMER=0,IFINDEX=100607C,GRIDLESS=DISABLE,CDLOW=-10000.0,CDHIGH=50000.0,VOATXPOWER=-0.50,TXLASERSHUTDN=N,OSNR=21.0,PMD=1.0,CD=4782,SOPMD=58,PDL=0.0,ALARMPROFILENAME=\"Inherited\":IS-NR,"
+;
+RTRV-OTU4C2::VFAC-2-6-12-1:103;
+
+
+   oln01enwdcola 2026-07-05 19:57:43
+M  103 COMPLD
+   "VFAC-2-6-12-1:,,WORK,STBY:GCC=N,DWRAP=Y,FEC=SD-25-DE-OFF,OSFBER=1E-5,OSDBER=1E-7,LBCL=0.0,OPT=-40.0,OPR=-40.0,FREQ=1530.33,LOSSB=DWDM,SOAK=32,,SQUELCHMODE=ODU-AIS,PORTMODE=DWDM-TRANS-AIS,,ALARMSUPPRESS=N,SQUELCHHOLDOFFTIMER=0,IFINDEX=100607D,GRIDLESS=DISABLE,CDLOW=-10000.0,CDHIGH=50000.0,VOATXPOWER=-0.50,TXLASERSHUTDN=N,ALARMPROFILENAME=\"Inherited\":OOS-MA,DSBLD"
+;
+
+
+   oln01enwdcola 2026-07-05 19:59:20
+A  3784.3771 REPT ALM OCH
+   "ACHAN-2-6-7-1:CL,SIGLOSS,SA,07-05,19-59-20,NEND,RCV:\"Signal Loss on Data Interface\",400G-XP-LC"
+;
+
+   oln01enwdcola 2026-07-05 19:59:20
+A  3785.3772 REPT EVT OCH
+   "ACHAN-2-6-7-1:SQUELCHED,CL,07-05,19-59-20,NEND,NA,,,:\"Equipment Squelched\",400G-XP-LC"
+;
+
+RTRV-100GIGE::AGGR-2-6-7-1:110;
+
+
+   oln01enwdcola 2026-07-05 20:00:30
+M  110 DENY
+   SDBE
+   AGGR-2-6-7-1
+   /* Facility Is Not Provisioned */
+;
+RTRV-100GIGE::AGGR-2-6-7-1:110;
+
+
+   oln01enwdcola 2026-07-05 20:03:11
+M  110 DENY
+   SDBE
+   AGGR-2-6-7-1
+   /* Facility Is Not Provisioned */
+;
+RTRV-100GIGE::AGGR-2-6-7-1:110::;
+
+
+   oln01enwdcola 2026-07-05 20:03:16
+M  110 DENY
+   SDBE
+   AGGR-2-6-7-1
+   /* Facility Is Not Provisioned */
+;
+RTRV-100GIGE::AGGR-2-6-7-1:110:;
+
+
+   oln01enwdcola 2026-07-05 20:03:21
+M  110 DENY
+   SDBE
+   AGGR-2-6-7-1
+   /* Facility Is Not Provisioned */
+;
+
