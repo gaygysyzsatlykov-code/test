@@ -1,42 +1,23 @@
-========================================
- T5 / 400G-XP-LC  state-driven wizard
-=========================================
+      User CISCO15 logged in from 10.252.254.207 */
+;
+RTRV-100GIGE::AGGR-2-6-7-1:101;
 
-Nodes:
-  1) NE-77    10.252.254.77
-  2) NE-74    10.252.254.74
-Select node (number, IP, or 'q'): 10.252.254.77
 
-Connecting to 10.252.254.77 -- discovering ...
+   oln01enwdcola 2026-07-05 19:57:30
+M  101 COMPLD
+   "AGGR-2-6-7-1:,,WORK,ACT:MTU=1548,MACADDR=00-00-00-00-00-00,SOAK=32,NUMOFLANES=4,,ALARMSUPPRESS=N,IFINDEX=1006078,OPTICSINDEX=1006008,ALARMPROFILENAME=\"Inherited\",LLDPSTATUS=NO:IS-NR,"
+;
+RTRV-OTU4C2::VFAC-2-6-11-1:102;
 
-  ============================================================
-  SLOT-2-6  400G-XP-LC   opmode: MXP (trunks 11/M-200G&12/M-200G)
-  ------------------------------------------------------------
-    1) TRUNK  port 11  CFP2      VFAC-2-6-11-1   IS-NR  FREQ=1530.33
-    2) TRUNK  port 12  CFP2      VFAC-2-6-12-1   OOS-MA,DSBLD  FREQ=1530.33
-    3) CLIENT port 7   QSFP-100G-LR4-1302.35NM     AGGR-2-6-7-1  [IS-NR]  (trunk 11)
-    4) CLIENT port 8   (no optic)                  AGGR-2-6-8-1  [-- insert 100G optic --]  (trunk 11)
-    5) CLIENT port 9   (no optic)                  AGGR-2-6-9-1  [-- insert 100G optic --]  (trunk 12)
-    6) CLIENT port 10  (no optic)                  AGGR-2-6-10-1  [-- insert 100G optic --]  (trunk 12)
-  ============================================================
 
-  Pick a port number, 'g' guided build, 'r' refresh, 'b' back: g
+   oln01enwdcola 2026-07-05 19:57:38
+M  102 COMPLD
+   "VFAC-2-6-11-1:,,WORK,ACT:GCC=N,DWRAP=Y,FEC=SD-25-DE-OFF,OSFBER=1E-5,OSDBER=1E-7,LBCL=4.0,OPT=0.5,OPR=-18.1,FREQ=1530.33,LOSSB=DWDM,SOAK=32,,SQUELCHMODE=ODU-AIS,PORTMODE=DWDM-TRANS-AIS,,ALARMSUPPRESS=N,SQUELCHHOLDOFFTIMER=0,IFINDEX=100607C,GRIDLESS=DISABLE,CDLOW=-10000.0,CDHIGH=50000.0,VOATXPOWER=-0.50,TXLASERSHUTDN=N,OSNR=21.0,PMD=1.0,CD=4782,SOPMD=58,PDL=0.0,ALARMPROFILENAME=\"Inherited\":IS-NR,"
+;
+RTRV-OTU4C2::VFAC-2-6-12-1:103;
 
-  Guided: provision a client service
-    1) client port 7 (rides trunk 11)  --  IS-NR
-  Which client port? (or 'q'): 1
-  Step: trunk 11 already in service (FREQ=1530.33) -- skipping.
-  client 7 is already fully in service -- nothing to do.
 
-  ============================================================
-  SLOT-2-6  400G-XP-LC   opmode: MXP (trunks 11/M-200G&12/M-200G)
-  ------------------------------------------------------------
-    1) TRUNK  port 11  CFP2      VFAC-2-6-11-1   IS-NR  FREQ=1530.33
-    2) TRUNK  port 12  CFP2      VFAC-2-6-12-1   OOS-MA,DSBLD  FREQ=1530.33
-    3) CLIENT port 7   QSFP-100G-LR4-1302.35NM     AGGR-2-6-7-1  [IS-NR]  (trunk 11)
-    4) CLIENT port 8   (no optic)                  AGGR-2-6-8-1  [-- insert 100G optic --]  (trunk 11)
-    5) CLIENT port 9   (no optic)                  AGGR-2-6-9-1  [-- insert 100G optic --]  (trunk 12)
-    6) CLIENT port 10  (no optic)                  AGGR-2-6-10-1  [-- insert 100G optic --]  (trunk 12)
-  ============================================================
-
-  Pick a port number, 'g' guided build, 'r' refresh, 'b' back: 
+   oln01enwdcola 2026-07-05 19:57:43
+M  103 COMPLD
+   "VFAC-2-6-12-1:,,WORK,STBY:GCC=N,DWRAP=Y,FEC=SD-25-DE-OFF,OSFBER=1E-5,OSDBER=1E-7,LBCL=0.0,OPT=-40.0,OPR=-40.0,FREQ=1530.33,LOSSB=DWDM,SOAK=32,,SQUELCHMODE=ODU-AIS,PORTMODE=DWDM-TRANS-AIS,,ALARMSUPPRESS=N,SQUELCHHOLDOFFTIMER=0,IFINDEX=100607D,GRIDLESS=DISABLE,CDLOW=-10000.0,CDHIGH=50000.0,VOATXPOWER=-0.50,TXLASERSHUTDN=N,ALARMPROFILENAME=\"Inherited\":OOS-MA,DSBLD"
+;
