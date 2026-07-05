@@ -1,8 +1,42 @@
-[silver@test t5_automation]$ ls
-Python-3.9.18  Python-3.9.18.tgz  t5_wizard.py
-[silver@test t5_automation]$ python3 t5_wizard.py
-  File "t5_wizard.py", line 26
-    from __future__ import annotations
-    ^
-SyntaxError: future feature annotations is not defined
-[silver@test t5_automation]$ 
+========================================
+ T5 / 400G-XP-LC  state-driven wizard
+=========================================
+
+Nodes:
+  1) NE-77    10.252.254.77
+  2) NE-74    10.252.254.74
+Select node (number, IP, or 'q'): 10.252.254.77
+
+Connecting to 10.252.254.77 -- discovering ...
+
+  ============================================================
+  SLOT-2-6  400G-XP-LC   opmode: MXP (trunks 11/M-200G&12/M-200G)
+  ------------------------------------------------------------
+    1) TRUNK  port 11  CFP2      VFAC-2-6-11-1   IS-NR  FREQ=1530.33
+    2) TRUNK  port 12  CFP2      VFAC-2-6-12-1   OOS-MA,DSBLD  FREQ=1530.33
+    3) CLIENT port 7   QSFP-100G-LR4-1302.35NM     AGGR-2-6-7-1  [IS-NR]  (trunk 11)
+    4) CLIENT port 8   (no optic)                  AGGR-2-6-8-1  [-- insert 100G optic --]  (trunk 11)
+    5) CLIENT port 9   (no optic)                  AGGR-2-6-9-1  [-- insert 100G optic --]  (trunk 12)
+    6) CLIENT port 10  (no optic)                  AGGR-2-6-10-1  [-- insert 100G optic --]  (trunk 12)
+  ============================================================
+
+  Pick a port number, 'g' guided build, 'r' refresh, 'b' back: g
+
+  Guided: provision a client service
+    1) client port 7 (rides trunk 11)  --  IS-NR
+  Which client port? (or 'q'): 1
+  Step: trunk 11 already in service (FREQ=1530.33) -- skipping.
+  client 7 is already fully in service -- nothing to do.
+
+  ============================================================
+  SLOT-2-6  400G-XP-LC   opmode: MXP (trunks 11/M-200G&12/M-200G)
+  ------------------------------------------------------------
+    1) TRUNK  port 11  CFP2      VFAC-2-6-11-1   IS-NR  FREQ=1530.33
+    2) TRUNK  port 12  CFP2      VFAC-2-6-12-1   OOS-MA,DSBLD  FREQ=1530.33
+    3) CLIENT port 7   QSFP-100G-LR4-1302.35NM     AGGR-2-6-7-1  [IS-NR]  (trunk 11)
+    4) CLIENT port 8   (no optic)                  AGGR-2-6-8-1  [-- insert 100G optic --]  (trunk 11)
+    5) CLIENT port 9   (no optic)                  AGGR-2-6-9-1  [-- insert 100G optic --]  (trunk 12)
+    6) CLIENT port 10  (no optic)                  AGGR-2-6-10-1  [-- insert 100G optic --]  (trunk 12)
+  ============================================================
+
+  Pick a port number, 'g' guided build, 'r' refresh, 'b' back: 
