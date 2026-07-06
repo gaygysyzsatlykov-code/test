@@ -1,0 +1,38 @@
+[
+  {
+    "id": "OPT20",
+    "label": "OPT20 (RW01.RK05)",
+    "host": "10.252.254.8",
+    "port": 3082,
+    "user": "root",
+    "pass": "root",
+    "description": "Polatis Optical Switch — RW01.RK05 (ru24) - Optical Lab"
+  },
+  {
+    "id": "OPT21",
+    "label": "OPT21 (BB.R01.R02)",
+    "host": "10.252.254.9",
+    "port": 3082,
+    "user": "root",
+    "pass": "root",
+    "description": "Polatis Optical Switch — BB.R01.R02 (ru11)"
+  },
+  {
+    "id": "OPT22",
+    "label": "OPT22 (BA.R01.R05)",
+    "host": "10.252.254.10",
+    "port": 3082,
+    "user": "root",
+    "pass": "root",
+    "description": "Polatis Optical Switch — BA.R01.R05 (ru37)"
+  },
+  {
+    "id": "OPT23",
+    "label": "OPT23 (BA.R02.R06)",
+    "host": "10.252.254.11",
+    "port": 3082,
+    "user": "root",
+    "pass": "root",
+    "description": "Polatis Optical Switch — BA.R02.R06 (ru17)"
+  }
+]
