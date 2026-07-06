@@ -1,7 +1,76 @@
-RTRV-OTU4C2::VFAC-2-6-12-1:140;
+[lab@sandbox ~]$ telnet 10.252.254.77 3082
+Trying 10.252.254.77...
+Connected to 10.252.254.77.
+Escape character is '^]'.
+ACT-USER::CISCO15:200::otbu+1;
 
 
-   oln01enwdcola 2026-07-05 20:13:36
-M  140 COMPLD
-   "VFAC-2-6-12-1:,,WORK,STBY:GCC=N,DWRAP=Y,FEC=SD-25-DE-OFF,OSFBER=1E-5,OSDBER=1E-7,LBCL=0.0,OPT=-40.0,OPR=-40.0,FREQ=1530.33,LOSSB=DWDM,SOAK=32,,SQUELCHMODE=ODU-AIS,PORTMODE=DWDM-TRANS-AIS,,ALARMSUPPRESS=N,SQUELCHHOLDOFFTIMER=0,IFINDEX=100607D,GRIDLESS=DISABLE,CDLOW=-10000.0,CDHIGH=50000.0,VOATXPOWER=-0.50,TXLASERSHUTDN=N,ALARMPROFILENAME=\"Inherited\":OOS-MA,DSBLD"
+   oln01enwdcola 2026-07-06 21:09:28
+M  200 COMPLD
+   "CISCO15:2026-07-06 21-05-46,2026-07-06 21-05-46,0"
 ;
+
+   oln01enwdcola 2026-07-06 21:09:28
+A  0 REPT EVT SESSION
+   "oln01enwdcola:NO,"
+   /* TL1 Agent Copyright (c) 1999-2007 Cisco Systems, Inc.
+
+WARNING
+This system is restricted to authorized users for business purposes. Unauthorized
+access is a violation of the law. This service may be monitored for administrative
+and security reasons. By proceeding, you consent to this monitoring.
+
+      User CISCO15 logged in from 10.252.254.207 */
+;
+ED-OTU4C2::VFAC-2-6-12-1:201:::SOAK=32:IS,AINS;
+
+
+   oln01enwdcola 2026-07-06 21:09:50
+M  201 COMPLD
+;
+
+
+   oln01enwdcola 2026-07-06 21:09:50
+A  3828.3816 REPT EVT OCH
+   "PCHAN-6-3-RX:TRAIL-SIGNAL-FAIL,CL,07-06,21-09-50,NEND,NA,,,:\"Trail Signal Fail\",MD-48-ODD"
+;
+
+   oln01enwdcola 2026-07-06 21:09:50
+*  3829.3829 REPT ALM OTS
+   "LINE-1-7-12-RX:MN,LOS-P,SA,07-05,20-12-40,NEND,NA:\"Incoming Payload Signal Absent\",SMR20-FS-CV"
+;
+
+RTRV-OTU4C2::VFAC-2-6-12-1:202;
+
+
+   oln01enwdcola 2026-07-06 21:09:56
+M  202 COMPLD
+   "VFAC-2-6-12-1:,,WORK,STBY:GCC=N,DWRAP=Y,FEC=SD-25-DE-OFF,OSFBER=1E-5,OSDBER=1E-7,FREQ=1530.33,LOSSB=DWDM,SOAK=32,SOAKLEFT=08-00,,SQUELCHMODE=ODU-AIS,PORTMODE=DWDM-TRANS-AIS,,ALARMSUPPRESS=N,SQUELCHHOLDOFFTIMER=0,IFINDEX=100607D,GRIDLESS=DISABLE,CDLOW=-10000.0,CDHIGH=50000.0,VOATXPOWER=-0.50,TXLASERSHUTDN=N,ALARMPROFILENAME=\"Inherited\":OOS-AU,AINS"
+;
+
+
+ED-OTU4C2::VFAC-2-6-12-1:203:::CMDMDE=FRCD:OOS,DSBLD;
+
+
+   oln01enwdcola 2026-07-06 21:10:11
+M  203 COMPLD
+;
+
+
+   oln01enwdcola 2026-07-06 21:10:11
+A  3830.3830 REPT EVT OCH
+   "PCHAN-6-3-RX:TRAIL-SIGNAL-FAIL,SC,07-06,21-10-10,NEND,NA,,,:\"Trail Signal Fail\",MD-48-ODD"
+;
+
+   oln01enwdcola 2026-07-06 21:10:11
+A  3831.3829 REPT ALM OTS
+   "LINE-1-7-12-RX:CL,LOS-P,SA,07-06,21-10-10,NEND,NA:\"Incoming Payload Signal Absent\",SMR20-FS-CV"
+;
+
+CANC-USER::CISCO15:204;
+
+
+   oln01enwdcola 2026-07-06 21:10:17
+M  204 COMPLD
+;Connection closed by foreign host.
+[lab@sandbox ~]$ 
